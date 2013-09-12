@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./ocr_icon.png" type="Manipulator">
+	<name>Tess4J</name>
+
+	<shortDescription>
+		Tess4j/Tesseract integration for KNIME.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+			Tess4J Node integrates the tesseract OCR library into Knime. 
+			
+			You can change the language an tesseract datapath in the
+			node configuration.
+		</intro>
+		<option name="Own Tessdata Path" optional="true">
+		If you want to use your own .traineddata tesseract language files, 
+		select "Use External" and select the folder which contains those language
+		files. 
+		</option>
+		
+		<option name="Language">
+		Tesseract uses languages to help with the optical character recognition. 
+		Default is "eng" (English), but there are other languages bundled with this
+		plugin.
+		
+		If you defined your own tessdata path and want to use your own .traineddata file, 
+		you will find your language here with the file ending cut off.
+		</option>
+		
+	</fullDescription>
+
+	<ports>
+	<inPort name="Image of the text" index="0">
+	Text as Image. <br/> 
+	To get better results, normalize and convert the image to black and white. 
+	This can be done with a global thresholder, for example.
+	</inPort>
+	<outPort index="0" name="String">Parsed Text</outPort>
+	</ports>
+
+</knimeNode>

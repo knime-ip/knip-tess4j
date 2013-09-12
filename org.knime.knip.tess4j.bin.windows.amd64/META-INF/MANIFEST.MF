@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tesseract Libraries and Dependencies for Windows x86_64
+Bundle-SymbolicName: org.knime.knip.tess4j.bin.windows.amd64
+Bundle-Version: 0.7.1.qualifier
+Bundle-Vendor: University of Konstanz
+Fragment-Host: org.knime.knip.tess4j.base;bundle-version="0.7.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
+Bundle-NativeCode: 
+ lib/windows/amd64/msvcp110.dll ; lib/windows/amd64/msvcr110.dll ; lib/windows/amd64/liblept168.dll ; lib/windows/amd64/libtesseract302.dll; 
+ osname=win32;
+ processor=x86_64
+

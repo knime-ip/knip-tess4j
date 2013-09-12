@@ -1,0 +1,66 @@
+--------------------------------------
+Hints on compiling tesseract
+Author: Jonathan Hale
+--------------------------------------
+
+Most parts of the compiling processs are
+described in the tesseract wiki on the google
+project page. But some minor issues may be
+solved by the following hints.
+
+Getting the source from the svn is not explained
+here. I assume you already did that.
+
+Before anything for all os/arch
+-------------------------------
+
+Apply the two patches in this folder. After svn update, copy
+the patches into tesseract folder and then:
+
+svn patch *.patch
+
+
+Windows
+-------
+
+- Make sure you compile all the dependancies.
+They are listed in a leptonica file with 
+download links. All of these had Visual Studio
+Projects (or compatable), which made this pretty 
+simple.
+
+- 64 bits != 32 bits. You will have to recompile
+all the dependencies for the 64 bit version aswell.
+This means adding the amd64 build target somewhere in 
+Visual Studio or simply selecting it if it already exists.
+
+- one dependancy has to be compiled via console. Not the System Console
+in Windows, but the Microsoft Visual Studio developer console. 
+Use the x64 console to compile for x64 and x86 for x86
+
+Linux
+------
+
+Whenever something fails because of lack of permission, use sudo.
+Also make sure you "apt-get install" all the dependancy-dev packages
+should also be listed in the leptonica library page.
+
+
+Steps:
+1. ./autogen.sh 
+Be sure to do this after an svn update of the tesseract
+repo again.
+2. ./configure --enable-shared
+Use enable-shared to get an .so and do not set a prefix, or it will overide the
+parameter for the tessdata dir in TessBaseInit() [This issue is reloved by tessdata_...r863.patch]
+3. make -j4
+The parameter is not neccessary, but speeds things up (muticore usage).
+4. make install
+Puts stuff where it belongs
+
+
+As mentioned in 1.: Do all these steps again, after you do svn update. This is because you
+need autoconfigure when files where added/removed in the update.
+
+
+Have fun! :)
