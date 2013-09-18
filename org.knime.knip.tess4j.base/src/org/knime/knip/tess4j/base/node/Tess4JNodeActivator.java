@@ -50,7 +50,8 @@ package org.knime.knip.tess4j.base.node;
 
 import org.knime.core.node.NodeLogger;
 import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleContext
+import java.io.File;
 
 /**
  * Tess4JNodeActivator
@@ -114,7 +115,7 @@ public class Tess4JNodeActivator implements BundleActivator {
 						+ os_simple + "." + arch + "/lib/" + os_simple + "/"
 						+ arch);
 
-		String path = basePath + ":" + System.getProperty("java.library.path");
+		String path = basePath + File.pathSeparator + System.getProperty("java.library.path");
 
 		System.setProperty("java.library.path", path);
 		System.setProperty("jna.library.path", path);
