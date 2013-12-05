@@ -2,7 +2,7 @@
 <feature
       id="org.knime.knip.tess4j.feature"
       label="KNIME Tess4J Integration (Beta)"
-      version="0.7.1.qualifier"
+      version="0.8.0.qualifier"
       provider-name="University of Konstanz - Jonathan Hale, Christian Dietz, Martin Horn, Michael Zinsmaier">
 
    <description>
