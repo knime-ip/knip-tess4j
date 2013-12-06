@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bundle-Name: KNIME Tesseract (OCR) Integration
+Bundle-Name: KNIME Image Processing - Tess4J Integration
 Bundle-SymbolicName: org.knime.knip.tess4j.base;singleton:=true
 Bundle-ManifestVersion: 2
 Bundle-Version: 0.8.0.qualifier
