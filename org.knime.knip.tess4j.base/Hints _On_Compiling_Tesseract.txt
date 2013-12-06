@@ -70,6 +70,8 @@ Have fun! :)
 Mac OSX
 -------
 
+Install homebrew for apt-get functionality.
+
 Mac has a different compiler called clang. This compiler is recognized by the automake script.
 Make sure you follow the Compiling steps of the Unix build:
 
