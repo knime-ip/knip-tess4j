@@ -19,6 +19,8 @@ the patches into tesseract folder and then:
 
 svn patch *.patch
 
+Note: "tessdata_prefix_r863.patch" is not needed after revision 907. 
+Bug was fixed in tesseract.
 
 Windows
 -------
@@ -30,7 +32,7 @@ Projects (or compatable), which made this pretty
 simple.
 
 - 64 bits != 32 bits. You will have to recompile
-all the dependencies for the 64 bit version aswell.
+all the dependencies for the 64 bit version as well.
 This means adding the amd64 build target somewhere in 
 Visual Studio or simply selecting it if it already exists.
 
@@ -43,7 +45,7 @@ Linux
 
 Whenever something fails because of lack of permission, use sudo.
 Also make sure you "apt-get install" all the dependancy-dev packages
-should also be listed in the leptonica library page.
+should also be listed in the leptonica or tesseract library page.
 
 
 Steps:
@@ -51,16 +53,34 @@ Steps:
 Be sure to do this after an svn update of the tesseract
 repo again.
 2. ./configure --enable-shared
-Use enable-shared to get an .so and do not set a prefix, or it will overide the
-parameter for the tessdata dir in TessBaseInit() [This issue is reloved by tessdata_...r863.patch]
+Use enable-shared to get an .so and do not set a prefix, or it will override the
+parameter for the tessdata dir in TessBaseInit() [This issue is resolved by tessdata_...r863.patch]
 3. make -j4
-The parameter is not neccessary, but speeds things up (muticore usage).
+The parameter "-j4" is not necessary, but speeds things up (muticore usage).
 4. make install
 Puts stuff where it belongs
 
 
 As mentioned in 1.: Do all these steps again, after you do svn update. This is because you
-need autoconfigure when files where added/removed in the update.
+need auto configure when files where added/removed in the update.
 
 
 Have fun! :)
+
+Mac OSX
+-------
+
+Mac has a different compiler called clang. This compiler is recognized by the automake script.
+Make sure you follow the Compiling steps of the Unix build:
+
+Steps:
+1. ./autogen.sh 
+Be sure to do this after an svn update of the tesseract
+repo again.
+2. ./configure --enable-shared
+Use enable-shared to get an .so and do not set a prefix, or it will override the
+parameter for the tessdata dir in TessBaseInit() [This issue is resolved by tessdata_...r863.patch]
+3. make -j4
+The parameter is not necessary, but speeds things up (muticore usage).
+4. make install
+Puts stuff where it belongs

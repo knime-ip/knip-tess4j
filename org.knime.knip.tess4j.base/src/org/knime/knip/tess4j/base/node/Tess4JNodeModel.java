@@ -95,26 +95,33 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 		String path = null;
 		if (m_pathModel.isActive()) {
+			//User defined language path
 			path = m_pathModel.getStringValue();
 		} else {
+			//Our language path
 			path = Tess4JNodeModel
 					.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
 		}
 
+		//tell tesseract which and language path to use
 		instance.setDatapath(path);
 		instance.setLanguage(m_languageModel.getStringValue());
 
 		String result = "";
 
 		try {
+			//the input image
 			Img<T> img = cellValue.getImgPlus();
-			Real2GreyRenderer<T> renderer = new Real2GreyRenderer<T>();
+			
+			//For converting our image to grey values
+			Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
 
-			BufferedImage bi = (BufferedImage) renderer.render(img, 0, 1,
-					new long[img.numDimensions()]).image();
-
+			//Create a BufferedImage from the grey input image
+			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1, new long[img.numDimensions()]).image();
+			//java.lang.IllegalArgumentException: Unknown image type 0
 			ImageDeskew id = new ImageDeskew(bi);
 			double imageSkewAngle = id.getSkewAngle(); // determine skew angle
+			
 			if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
 				bi = ImageHelper.rotateImage(bi, -imageSkewAngle); // deskew
 																	// image
@@ -123,6 +130,8 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			result = instance.doOCR(bi);
 
 		} catch (Exception e) {
+			//Empty page!! Message by tesseract
+			
 			this.getLogger().error("Execute failed: Exception was thrown.");
 			e.printStackTrace();
 		}

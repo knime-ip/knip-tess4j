@@ -58,7 +58,8 @@ import org.knime.core.node.NodeSetFactory;
 import org.knime.core.node.config.ConfigRO;
 
 /**
- * TODO
+ * Tess4JNodeSetFactory
+ * Creates the Tess4J Nodes. Currently only one node exists.
  * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:jonathan.hale@uni-konstanz.de">Jonathan Hale</a>

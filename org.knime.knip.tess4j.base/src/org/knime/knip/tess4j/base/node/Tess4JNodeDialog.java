@@ -58,6 +58,8 @@ import javax.swing.event.ChangeListener;
 
 import net.imglib2.type.numeric.RealType;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -123,8 +125,9 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 		File file = new File(path);
 
 		if (!file.exists()) {
+			//path is invalid.
+			this.
 			m_languages = new String[] {};
-
 			return;
 		}
 
@@ -149,5 +152,11 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 
 		Collections.sort(list);
 		m_languages = list.toArray(new String[] {});
+	}
+	
+	@Override
+	public void saveAdditionalSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		super.saveAdditionalSettingsTo(settings);
 	}
 }

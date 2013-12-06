@@ -106,7 +106,16 @@ public class Tess4JNodeActivator implements BundleActivator {
 		LOGGER.debug("Trying to load tess4j libs");
 
 		final String os = System.getProperty("os.name");
-		final String os_simple = (os.contains("Windows")) ? "windows" : "linux";
+		
+		String os_simple = "";
+		
+		if (os.contains("Windows")) {
+			os_simple = "windows";
+		} else if (os.contains("Linux")) {
+			os_simple = "linux";
+		} else {
+			os_simple = "mac";
+		}
 
 		String arch = System.getProperty("os.arch");
 
