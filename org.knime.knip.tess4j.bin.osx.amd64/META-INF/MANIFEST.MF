@@ -6,15 +6,9 @@ Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: University of Konstanz
 Fragment-Host: org.knime.knip.tess4j.base;bundle-version="0.8.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
+Eclipse-PlatformFilter: (&(osgi.os=macosx)(osgi.arch=x86_64))
 Bundle-NativeCode: 
- lib/windows/amd64/msvcp110.dll;
- lib/windows/amd64/msvcr110.dll;
- lib/windows/amd64/liblept168.dll;
- lib/windows/amd64/libtesseract302.dll;
- osname=win32;
- osname=Windows 8;
- osname=Windows8;
- osname=Win 8;
+ osname=macosx;
+ osname=Mac OS X;
  processor=x86_64
 
