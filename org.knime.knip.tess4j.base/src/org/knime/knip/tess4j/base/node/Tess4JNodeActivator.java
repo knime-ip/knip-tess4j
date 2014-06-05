@@ -48,10 +48,9 @@
  */
 package org.knime.knip.tess4j.base.node;
 
-import org.knime.core.node.NodeLogger;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-import java.io.File;
+import org.knime.knip.base.activators.LinuxSystemLibraryConfig;
+import org.knime.knip.base.activators.NativeLibBundleActivator;
+import org.knime.knip.base.activators.WindowsSystemLibraryConfig;
 
 /**
  * Tess4JNodeActivator
@@ -61,101 +60,31 @@ import java.io.File;
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:jonathan.hale@uni-konstanz.de">Jonathan Hale</a>
  * @author <a href="mailto:horn_martin@gmx.de">Martin Horn</a>
- * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
- *         Zinsmaier</a>
+ * 
  */
 
-public class Tess4JNodeActivator implements BundleActivator {
+public class Tess4JNodeActivator extends NativeLibBundleActivator {
 
-	private static final NodeLogger LOGGER = NodeLogger.getLogger("Tess4J");
+	public Tess4JNodeActivator() {
+		super("org.knime.knip.tess4j", true);
 
-	private static boolean tess4jLoaded = false;
+		addConfig(new WindowsSystemLibraryConfig(WINDOWS));
+		addConfig(new LinuxSystemLibraryConfig(LINUX));
+	}
 
 	/*
-	 * System specific shared libraries in order of dependancy.
+	 * System specific shared libraries in order of dependency.
 	 */
-	private static String[] linux = { "z", "jbig", "tiff", "png12", "webp",
+	private static String[] LINUX = { "z", "jbig", "tiff", "png12", "webp",
 			"jpeg", "gif", "lept" };
-	private static String[] windows = { "msvcr110", "msvcp110", "liblept168",
+	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
 			"libtesseract302" };
 
 	/**
-	 * This method trys to load all libs that are passed to it.<br>
-	 * 
-	 * To ensure the libs are actually all loaded, the programmer has to make
-	 * sure that the libs are in correct order.
-	 * 
-	 * @param libs
-	 *            the system specific libs to load
-	 * 
-	 * @throws UnsatisfiedLinkError
-	 *             if one or more libs could not be loaded at all
+	 * {@inheritDoc}
 	 */
-	private void loadLibs(final String[] libs) {
-
-		if (libs != null) {
-			for (final String s : libs) {
-				System.loadLibrary(s);
-			}
-		}
-	}
-
 	@Override
-	public final void start(final BundleContext context) throws Exception {
-
-		LOGGER.debug("Trying to load tess4j libs");
-
-		final String os = System.getProperty("os.name");
-		
-		String os_simple = "";
-		
-		if (os.contains("Windows")) {
-			os_simple = "windows";
-		} else if (os.contains("Linux")) {
-			os_simple = "linux";
-		} else {
-			os_simple = "mac";
-		}
-
-		String arch = System.getProperty("os.arch");
-
-		String basePath = Tess4JNodeModel
-				.getEclipsePath("platform:/fragment/org.knime.knip.tess4j.bin."
-						+ os_simple + "." + arch + "/lib/" + os_simple + "/"
-						+ arch);
-
-		String path = basePath + File.pathSeparator + System.getProperty("java.library.path");
-
-		System.setProperty("java.library.path", path);
-		System.setProperty("jna.library.path", path);
-
-		LOGGER.debug("System Path: " + System.getProperty("java.library.path"));
-		LOGGER.debug("OS: " + os_simple + ", ARCH: " + arch);
-
-		try {
-
-			if (os_simple.equals("windows")) {
-				loadLibs(windows);
-			} else if (os_simple.equals("linux")) {
-				loadLibs(linux);
-			}
-
-			LOGGER.debug("Tess4J successfully loaded");
-			tess4jLoaded = true;
-
-		} catch (final UnsatisfiedLinkError error) {
-			LOGGER.error("Could not load Tess4J!");
-			LOGGER.error(error.getMessage());
-		}
-		return;
-	}
-
-	@Override
-	public final void stop(final BundleContext context) throws Exception {
-		// unused
-	}
-
-	public static final boolean VTKLoaded() {
-		return tess4jLoaded;
+	protected void load(final String lib) {
+		System.loadLibrary(lib);
 	}
 }
