@@ -90,8 +90,8 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
 	@Override
-	protected StringCell compute(ImgPlusValue<T> cellValue) throws Exception {
-		Tesseract instance = Tesseract.getInstance(); // JNA Interface Mapping
+	protected StringCell compute(final ImgPlusValue<T> cellValue) throws Exception {
+		final Tesseract instance = Tesseract.getInstance(); // JNA Interface Mapping
 
 		String path = null;
 		if (m_pathModel.isActive()) {
@@ -111,16 +111,16 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 		try {
 			//the input image
-			Img<T> img = cellValue.getImgPlus();
+			final Img<T> img = cellValue.getImgPlus();
 			
 			//For converting our image to grey values
-			Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
+			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
 
 			//Create a BufferedImage from the grey input image
 			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1, new long[img.numDimensions()]).image();
 			//java.lang.IllegalArgumentException: Unknown image type 0
-			ImageDeskew id = new ImageDeskew(bi);
-			double imageSkewAngle = id.getSkewAngle(); // determine skew angle
+			final ImageDeskew id = new ImageDeskew(bi);
+			final double imageSkewAngle = id.getSkewAngle(); // determine skew angle
 			
 			if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
 				bi = ImageHelper.rotateImage(bi, -imageSkewAngle); // deskew
@@ -129,10 +129,8 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 			result = instance.doOCR(bi);
 
-		} catch (Exception e) {
-			//Empty page!! Message by tesseract
-			
-			this.getLogger().error("Execute failed: Exception was thrown.");
+		} catch (final Exception e) {
+			this.getLogger().error("Execute failed: Exception was thrown.", e);
 			e.printStackTrace();
 		}
 
@@ -140,7 +138,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 	}
 
 	@Override
-	protected void addSettingsModels(List<SettingsModel> settingsModels) {
+	protected void addSettingsModels(final List<SettingsModel> settingsModels) {
 
 	}
 
@@ -168,12 +166,12 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 	 * @param platformurl
 	 * @return
 	 */
-	public static String getEclipsePath(String platformurl) {
+	public static String getEclipsePath(final String platformurl) {
 		try {
-			URL url = new URL(platformurl);
-			File dir = new File(FileLocator.resolve(url).getFile());
+			final URL url = new URL(platformurl);
+			final File dir = new File(FileLocator.resolve(url).getFile());
 			return dir.getAbsolutePath();
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			return null;
 		}
 	}
