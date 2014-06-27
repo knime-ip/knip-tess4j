@@ -49,6 +49,7 @@
 package org.knime.knip.tess4j.base.node;
 
 import org.knime.knip.base.activators.LinuxSystemLibraryConfig;
+import org.knime.knip.base.activators.MacOSXSystemLibraryConfig;
 import org.knime.knip.base.activators.NativeLibBundleActivator;
 import org.knime.knip.base.activators.WindowsSystemLibraryConfig;
 
@@ -70,6 +71,7 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 
 		addConfig(new WindowsSystemLibraryConfig(WINDOWS));
 		addConfig(new LinuxSystemLibraryConfig(LINUX));
+		addConfig(new MacOSXSystemLibraryConfig(MAC));
 	}
 
 	/*
@@ -77,6 +79,7 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 	 */
 	private static String[] LINUX = { "z", "jbig", "tiff", "png12", "webp",
 			"jpeg", "gif", "lept" };
+	private static String[] MAC = { /* TODO */ };
 	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
 			"libtesseract302" };
 
