@@ -8,6 +8,7 @@ described in the tesseract wiki on the google
 project page. But some minor issues may be
 solved by the following hints.
 
+**Important note**
 Getting the source from the svn is not explained
 here. I assume you already did that.
 
@@ -25,7 +26,7 @@ Bug was fixed in tesseract.
 Windows
 -------
 
-- Make sure you compile all the dependancies.
+- Make sure you compile all the dependencies.
 They are listed in a leptonica file with 
 download links. All of these had Visual Studio
 Projects (or compatable), which made this pretty 
@@ -44,11 +45,11 @@ Linux
 ------
 
 Whenever something fails because of lack of permission, use sudo.
-Also make sure you "apt-get install" all the dependancy-dev packages
-should also be listed in the leptonica or tesseract library page.
-
 
 Steps:
+0. make sure you "apt-get install" all the dependancy-dev packages
+should also be listed in the leptonica or tesseract library page. 
+(Don't forget automake and libtool)
 1. ./autogen.sh 
 Be sure to do this after an svn update of the tesseract
 repo again.
