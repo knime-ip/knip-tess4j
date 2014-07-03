@@ -8,6 +8,11 @@ described in the tesseract wiki on the google
 project page. But some minor issues may be
 solved by the following hints.
 
+Also, Tess4J may not support Tesseract 3.03, if you want
+to take the risk of having to recompile everything, do
+so, otherwise you may want to donwload a source archive 
+from [https://code.google.com/p/tesseract-ocr/downloads/list].
+
 **Important note**
 Getting the source from the svn is not explained
 here. I assume you already did that.
@@ -71,7 +76,8 @@ Have fun! :)
 Mac OSX
 -------
 
-Install homebrew for apt-get functionality.
+Install homebrew for apt-get functionality. Also, tesseract from svn had compilation bugs recently, 
+you may want to download the source archive provided by the googlecode page instead.
 
 Mac has a different compiler called clang. This compiler is recognized by the automake script.
 Make sure you follow the Compiling steps of the Unix build:
