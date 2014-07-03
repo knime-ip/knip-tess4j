@@ -52,6 +52,8 @@ import org.knime.knip.base.activators.LinuxSystemLibraryConfig;
 import org.knime.knip.base.activators.MacOSXSystemLibraryConfig;
 import org.knime.knip.base.activators.NativeLibBundleActivator;
 import org.knime.knip.base.activators.WindowsSystemLibraryConfig;
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
 
 /**
  * Tess4JNodeActivator
@@ -79,7 +81,8 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 	 */
 	private static String[] LINUX = { "z", "jbig", "tiff", "png12", "webp",
 			"jpeg", "gif", "lept" };
-	private static String[] MAC = { "libjpeg", "libpng", "liblept", "libtesseract" }; // TODO: Test whether libtesseract is required in this array
+
+	private static String[] MAC = { "png16.16", "jpeg.8", "lept.4", "tesseract.3", "tesseract" };
 	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
 			"libtesseract302" };
 
