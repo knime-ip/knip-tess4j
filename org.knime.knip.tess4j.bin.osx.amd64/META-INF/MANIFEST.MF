@@ -1,14 +1,20 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Tesseract Libraries and Dependencies for Windows x86_64
-Bundle-SymbolicName: org.knime.knip.tess4j.bin.windows.amd64
+Bundle-Name: Tesseract Libraries and Dependencies for Mac OS X x86_64
+Bundle-SymbolicName: org.knime.knip.tess4j.bin.macosx.amd64
 Bundle-Version: 0.8.0.qualifier
 Bundle-Vendor: University of Konstanz
 Fragment-Host: org.knime.knip.tess4j.base;bundle-version="0.8.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Eclipse-PlatformFilter: (&(osgi.os=macosx)(osgi.arch=x86_64))
 Bundle-NativeCode: 
+ lib/macosx/amd64/libjpeg.8.dylib;  
+ lib/macosx/amd64/libpng16.16.dylib;
+ lib/macosx/amd64/liblept.4.dylib;
+ lib/macosx/amd64/libtesseract.dylib; 
+ lib/macosx/amd64/libtesseract.3.dylib; 
  osname=macosx;
+ osname=mac;
  osname=Mac OS X;
  processor=x86_64
 
