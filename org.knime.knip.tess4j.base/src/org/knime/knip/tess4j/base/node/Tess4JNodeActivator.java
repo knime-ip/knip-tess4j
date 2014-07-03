@@ -79,7 +79,7 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 	 */
 	private static String[] LINUX = { "z", "jbig", "tiff", "png12", "webp",
 			"jpeg", "gif", "lept" };
-	private static String[] MAC = { /* TODO */ };
+	private static String[] MAC = { "libjpeg", "libpng", "liblept", "libtesseract" }; // TODO: Test whether libtesseract is required in this array
 	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
 			"libtesseract302" };
 
