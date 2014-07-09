@@ -52,8 +52,6 @@ import org.knime.knip.base.activators.LinuxSystemLibraryConfig;
 import org.knime.knip.base.activators.MacOSXSystemLibraryConfig;
 import org.knime.knip.base.activators.NativeLibBundleActivator;
 import org.knime.knip.base.activators.WindowsSystemLibraryConfig;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
 /**
  * Tess4JNodeActivator

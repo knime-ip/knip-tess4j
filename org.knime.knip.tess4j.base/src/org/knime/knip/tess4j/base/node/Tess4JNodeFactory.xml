@@ -9,11 +9,10 @@
 
 	<fullDescription>
 		<intro>
-			Tess4J Node integrates the tesseract OCR library into KNIME.
+			Tess4J Node integrates the Tesseract OCR library into KNIME.
 
-			You can change the language an tesseract datapath in the
-			node
-			configuration.
+			You can change the language an Tesseract datapath in the
+			node configuration.
 		</intro>
 		<tab name="Options">
 			<option name="Own Tessdata Path" optional="true">
@@ -36,7 +35,7 @@
 	</fullDescription>
 
 	<ports>
-		<inPort name="Image of the text" index="0">
+		<inPort name="Image containing Text" index="0">
 			Text as Images. To get
 			better results, normalize and convert the image to black and
 			white.
