@@ -11,4 +11,4 @@ using the "Tess4J" Java wrapper (http://tess4j.sourceforge.net/).
 Current Platform Support
 ------
 
-This extension currently supports Windows (32/64 bit) and Linux (32/64 bit) platforms.
+This extension currently supports Mac, Windows (32/64 bit) and Linux (32/64 bit) platforms. Note: Not all Linux platforms are currently supported.
