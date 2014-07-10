@@ -106,13 +106,24 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 	}
 
 	@Override
-	public void stateChanged(ChangeEvent evt) {
+	public void stateChanged(final ChangeEvent evt) {
 		if (evt.getSource().equals(m_pathModel)) {
 			updateLanguages();
+
+			final ArrayList<String> list = new ArrayList<String>();
+			for (final String s : m_languages) {
+				list.add(s);
+			}
+			
+			m_languageList.replaceListItems(list, null);
 		}
 	}
 
-	private void updateLanguages() {
+	/**
+	 * Searches currently selected m_pathModel path for .tessdata files
+	 * @return true if one or more .tessdata files were found, false otherwise
+	 */
+	private boolean updateLanguages() {
 		String path = null;
 
 		if (m_pathModel.isActive()) {
@@ -122,19 +133,18 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 					.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
 		}
 
-		File file = new File(path);
+		final File file = new File(path);
 
 		if (!file.exists()) {
 			//path is invalid.
-			this.
-			m_languages = new String[] {};
-			return;
+			m_languages = new String[] {"Invalid Path"};
+			return false;
 		}
 
-		File[] files = new File(path).listFiles();
+		final File[] files = new File(path).listFiles();
 
-		List<String> list = new ArrayList<String>();
-		for (File f : files) {
+		final List<String> list = new ArrayList<String>();
+		for (final File f : files) {
 			if (!f.isDirectory()) {
 				String language = f.getName();
 
@@ -150,13 +160,25 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 			}
 		}
 
+		if (list.isEmpty()) {
+			m_languages = new String[] {"Invalid Path"};
+			return false;
+		}
+		
 		Collections.sort(list);
 		m_languages = list.toArray(new String[] {});
+		
+		return true;
 	}
 	
 	@Override
-	public void saveAdditionalSettingsTo(NodeSettingsWO settings)
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		if (!updateLanguages()) { 
+			throw new InvalidSettingsException("No tesseract language files (.tessdata) found in selected path.");
+		}
+		
+		
 		super.saveAdditionalSettingsTo(settings);
 	}
 }

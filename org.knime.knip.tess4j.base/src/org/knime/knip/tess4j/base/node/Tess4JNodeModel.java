@@ -84,8 +84,8 @@ import com.recognition.software.jdeskew.ImageDeskew;
 public class Tess4JNodeModel<T extends RealType<T>> extends
 		ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
 
-	private SettingsModelString m_languageModel = createTessLanguageModel();
-	private SettingsModelOptionalString m_pathModel = createTessdataPathModel();
+	private final SettingsModelString m_languageModel = createTessLanguageModel();
+	private final SettingsModelOptionalString m_pathModel = createTessdataPathModel();
 
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
@@ -123,8 +123,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			final double imageSkewAngle = id.getSkewAngle(); // determine skew angle
 			
 			if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
-				bi = ImageHelper.rotateImage(bi, -imageSkewAngle); // deskew
-																	// image
+				bi = ImageHelper.rotateImage(bi, -imageSkewAngle); // deskew image
 			}
 
 			result = instance.doOCR(bi);
