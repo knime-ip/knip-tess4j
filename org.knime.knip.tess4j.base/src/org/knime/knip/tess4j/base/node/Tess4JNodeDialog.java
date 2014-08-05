@@ -57,10 +57,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import net.imglib2.type.numeric.RealType;
+import net.sourceforge.tess4j.ITesseract;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -86,12 +88,17 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 	private SettingsModelOptionalString m_pathModel;
 	private SettingsModelString m_languageModel;
 	private String[] m_languages;
+	
+	private SettingsModelInteger m_pageSegMode;
+	private SettingsModelInteger m_ocrEngineMode;
 
 	@Override
 	public void addDialogComponents() {
 		m_pathModel = Tess4JNodeModel.createTessdataPathModel();
 		m_languageModel = Tess4JNodeModel.createTessLanguageModel();
-
+		m_pageSegMode = Tess4JNodeModel.createTessPageSegModeModel();
+		m_ocrEngineMode = Tess4JNodeModel.createTessOcrEngineModeModel();
+				
 		updateLanguages();
 
 		m_languageList = new DialogComponentStringSelection(m_languageModel,
@@ -103,6 +110,9 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 
 		addDialogComponent(m_pathChooser);
 		addDialogComponent(m_languageList);
+		
+		addDialogComponent(new DialogComponentStringIndexSelection(m_pageSegMode, "Page Segmentation Mode", ITesseract.PageSegMode.m_valueNames));
+		addDialogComponent(new DialogComponentStringIndexSelection(m_ocrEngineMode, "OCR Engine Mode", ITesseract.OcrEngineMode.m_valueNames));
 	}
 
 	@Override

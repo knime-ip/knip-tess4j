@@ -4,18 +4,21 @@
 	<name>Tess4J</name>
 
 	<shortDescription>
-		Tess4j/Tesseract Integration for KNIME.
+		Tess4J/Tesseract Integration for KNIME.
 	</shortDescription>
 
 	<fullDescription>
 		<intro>
 			Tess4J Node integrates the Tesseract OCR library into KNIME.
 
-			You can change the language an Tesseract datapath in the
+			You may change the language and Tesseract datapath (path to language files) in the
 			node configuration.
+			
+			Please note, that this node can not be run multi-threaded, therefore only one Tess4J
+			node runs at once and other Tess4J nodes wait for it's completion.
 		</intro>
 		<tab name="Options">
-			<option name="Own Tessdata Path" optional="true">
+			<option name="Tessdata Path" optional="true">
 				If you want to use your own .traineddata tesseract language files,
 				select "Use External" and select the folder which contains those
 				language
@@ -27,9 +30,96 @@
 				Default is "eng" (English), but there are other languages bundled
 				with this plugin.
 
-				If you defined your own tessdata path and want to use your own
-				.traineddata file,
-				you will find your language here with the file ending cut off.
+				If you have your own tessdata path defined, languages found in that path
+				will automatically be listed here.
+			</option>
+			
+			<option name="Page Segmentation Mode">
+				Define how your page is segmented here. For flow variables use the ID.
+				<table>
+					<tr><th> ID </th>
+						<th> Name </th>
+						<th> Description </th>
+					</tr>
+					<tr><td> 0 </td>
+						<td><b> OSD Only </b></td>
+						<td> Orientation and script detection (OSD) only. </td>
+					</tr>
+					<tr><td> 1 </td>
+					 	<td><b> Auto Pageseg and OSD </b></td>
+					 	<td> Automatic page segmentation and OSD. </td>
+					</tr>
+					<tr><td> 2 </td>
+						<td><b> Auto Pageseg Only </b></td>
+						<td> Automatic page segmentation, no OSD and no OCR. </td>
+					</tr>
+					<tr><td> 3 </td>
+						<td><b> Full Auto Pageseg </b></td>
+						<td> Fully automatic page segmentation, no OSD. </td>
+					</tr>
+					<tr><td> 4 </td>
+						<td><b> Single Column </b></td>
+						<td> Assume a single column of test of variable sizes. </td>
+					</tr>
+					<tr><td> 5 </td>
+						<td><b> Single Vert Block </b></td>
+						<td> Assume a single uniform block of vertically aligned text. </td>
+					</tr>
+					<tr><td> 6 </td>
+						<td><b> Single Block </b></td>
+						<td> Assume a single uniform block of text. (default) </td>
+					</tr>
+					<tr><td> 7 </td>
+						<td><b> Single Line </b></td>
+						<td> Treat the image as a single text line. </td>
+					</tr>
+					<tr><td> 8 </td>
+						<td><b> Single Word </b></td>
+						<td> Treat the image as a single word. </td>
+					</tr>
+					<tr><td> 9 </td>
+						<td><b> Circle Word </b></td>
+						<td> Treat the image as a single word in a circle. </td>
+					</tr>
+					<tr><td> 10 </td>
+						<td><b> Single Char </b></td>
+						<td> Treat the image as a single character. </td>
+					</tr>
+					<tr><td> 11 </td>
+						<td><b> Sparse Text </b></td>
+						<td> Find as much text as possible in no particular order. </td>
+					</tr>
+					<tr><td> 12 </td>
+						<td><b> Sparse Test with OSD </b></td>
+						<td> Sparse text with OSD. </td>
+					</tr>
+				</table>
+			</option>
+			
+			<option name="OCR Engine Mode">
+				Define which OCR engine to use. For flow variables use ID.
+				<table>
+					<tr><th> ID </th>
+						<th> Name </th>
+						<th> Description </th>
+					</tr>
+					<tr><td> 0 </td>
+						<td><b> Tesseract Only </b></td>
+						<td> Only use Tesseract. (fastest) </td>
+					</tr>
+					<tr><td> 1 </td>
+						<td><b> Cube Only </b></td>
+						<td> Only use Cube. This is slower than "Tesseract Only", but more accurate. </td>
+					</tr>
+					<tr><td> 2 </td>
+						<td><b> Tesseract And Cube </b></td>
+						<td> Use both of the above and combine results. ((best accuracy) </td>
+					</tr>
+					<tr><td> 3 </td>
+						<td><b> Default </b></td>
+						<td> Use language specific configuration or "Tesseract Only", if not specified. </td>
+					</tr>
+				</table>
 			</option>
 		</tab>
 	</fullDescription>
@@ -41,7 +131,7 @@
 			white.
 			This can be done with a global thresholder, for example.
 		</inPort>
-		<outPort index="0" name="String">Parsed Text</outPort>
+		<outPort index="0" name="String">OCR Result String</outPort>
 	</ports>
 
 </knimeNode>
