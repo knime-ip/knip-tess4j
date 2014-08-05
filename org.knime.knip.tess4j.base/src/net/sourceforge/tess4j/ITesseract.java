@@ -57,6 +57,24 @@ public interface ITesseract {
 		PageSegMode(final int m) {
 			m_mode = m;
 		}
+		
+		public final static String[] m_valueNames = {
+				"OSD Only",
+				"Auto Pageseg and OSD",
+				
+				"Auto Pageseg Only",
+				"Full Auto Pageseg",
+				"Single Column",
+				"Single Vert Block",
+				
+				"Single Block",
+				"Single Line",
+				"Single Word",
+				"Circle Word",
+				"Single Char",
+				"Sparse Text",
+				"Sparse Test with OSD"
+		};
   	};
   	
   	
@@ -76,6 +94,13 @@ public interface ITesseract {
 		OcrEngineMode(final int m) {
 			m_mode = m;
 		}
+		
+		public final static String[] m_valueNames = {
+			"Tesseract Only",
+			"Cube Only",
+			"Tesseract And Cube",
+			"Default"
+		};
   	};
 
     /**
