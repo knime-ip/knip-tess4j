@@ -53,15 +53,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
+import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.vietocr.ImageHelper;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
@@ -86,51 +89,74 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 	private final SettingsModelString m_languageModel = createTessLanguageModel();
 	private final SettingsModelOptionalString m_pathModel = createTessdataPathModel();
+	private final SettingsModelInteger m_pageSegMode = createTessPageSegModeModel();
+	private final SettingsModelInteger m_ocrEngineMode = createTessOcrEngineModeModel();
 
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
+	
+	private static final ReentrantLock lock = new ReentrantLock();
 
 	@Override
 	protected StringCell compute(final ImgPlusValue<T> cellValue) throws Exception {
-		final Tesseract instance = Tesseract.getInstance(); // JNA Interface Mapping
-
-		String path = null;
-		if (m_pathModel.isActive()) {
-			//User defined language path
-			path = m_pathModel.getStringValue();
-		} else {
-			//Our language path
-			path = Tess4JNodeModel
-					.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
+		if (lock.isLocked()) {
+			this.setWarningMessage("Waiting for other Tess4J Nodes to complete.");
 		}
-
-		//tell tesseract which and language path to use
-		instance.setDatapath(path);
-		instance.setLanguage(m_languageModel.getStringValue());
-
+		
+		lock.lock();
+		
+		this.setWarningMessage(null);
+		
 		String result = "";
-
+		
 		try {
-			//the input image
-			final Img<T> img = cellValue.getImgPlus();
-			
-			//For converting our image to grey values
-			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
+			// JNA interface mapping
+			final Tesseract instance = Tesseract.getInstance();
 
-			//Create a BufferedImage from the grey input image
-			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1, new long[img.numDimensions()]).image();
-			//java.lang.IllegalArgumentException: Unknown image type 0
-			final ImageDeskew id = new ImageDeskew(bi);
-			final double imageSkewAngle = id.getSkewAngle(); // determine skew angle
-			
-			if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
-				bi = ImageHelper.rotateImage(bi, -imageSkewAngle); // deskew image
+			String path = null;
+			if (m_pathModel.isActive()) {
+				// User defined language path
+				path = m_pathModel.getStringValue();
+			} else {
+				// Our language path
+				path = Tess4JNodeModel
+						.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
 			}
 
-			result = instance.doOCR(bi);
+			// tell tesseract which and language path to use
+			instance.setDatapath(path);
+			instance.setLanguage(m_languageModel.getStringValue());
+			instance.setOcrEngineMode(m_ocrEngineMode.getIntValue());
+			instance.setPageSegMode(m_pageSegMode.getIntValue());
 
-		} catch (final Exception e) {
-			this.getLogger().error("Execute failed: Exception was thrown.", e);
-			e.printStackTrace();
+			try {
+				// the input image
+				final Img<T> img = cellValue.getImgPlus();
+
+				// For converting our image to grey values
+				final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
+
+				// Create a BufferedImage from the grey input image
+				BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0,
+						1, new long[img.numDimensions()]).image();
+				// java.lang.IllegalArgumentException: Unknown image type 0
+				final ImageDeskew id = new ImageDeskew(bi);
+				// determine skew angle
+				final double imageSkewAngle = id.getSkewAngle();
+
+				if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
+					// deskew the image
+					bi = ImageHelper.rotateImage(bi, -imageSkewAngle);
+				}
+
+				result = instance.doOCR(bi);
+
+			} catch (final Exception e) {
+				this.getLogger().error("Execute failed: Exception was thrown.",
+						e);
+				e.printStackTrace();
+			}
+		} finally {
+			lock.unlock();
 		}
 
 		return new StringCell(result);
@@ -138,7 +164,10 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 	@Override
 	protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-
+		settingsModels.add(m_languageModel);
+		settingsModels.add(m_pathModel);
+		settingsModels.add(m_pageSegMode);
+		settingsModels.add(m_ocrEngineMode);
 	}
 
 	/**
@@ -158,6 +187,24 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 	public static SettingsModelOptionalString createTessdataPathModel() {
 		return new SettingsModelOptionalString("TessdataPath", "", false);
 	}
+	
+	/**
+	 * Creates a SettingsModel for Tesseract Page Segmentation Mode
+	 * 
+	 * @return
+	 */
+	public static SettingsModelInteger createTessPageSegModeModel() {
+		return new SettingsModelInteger("PageSegMode", ITesseract.PageSegMode.PSM_SINGLE_BLOCK.m_mode);
+	}
+	
+	/**
+	 * Creates a SettingsModel for Tesseract OCR Engine Mode
+	 * 
+	 * @return
+	 */
+	public static SettingsModelInteger createTessOcrEngineModeModel() {
+		return new SettingsModelInteger("OcrEngineMode", ITesseract.OcrEngineMode.OEM_DEFAULT.m_mode);
+	}
 
 	/**
 	 * Helper Function to resolve platform urls
@@ -174,4 +221,5 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			return null;
 		}
 	}
+
 }
