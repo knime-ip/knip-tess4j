@@ -2,8 +2,8 @@
 <feature
       id="org.knime.knip.tess4j.feature"
       label="KNIME Image Processing - Tess4J Integration"
-      version="0.8.2.qualifier"
-      provider-name="University of Konstanz - Jonathan Hale, Christian Dietz, Martin Horn, Michael Zinsmaier">
+      version="0.9.1.qualifier"
+      provider-name="University of Konstanz - Jonathan Hale, Christian Dietz">
 
    <description>
       Additional KNIME Tess4J Extension for KNIME Image Processing
