@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="org.knime.knip.tess4j.update"
-      label="KNIP Update Site"
-      version="0.8.2.qualifier">
+      label="KNIME Image Processing - Tess4J Integration Update-Site"
+      version="1.0.0.qualifier">
 
    <includes
          id="org.knime.knip.tess4j.feature"
