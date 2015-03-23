@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.sourceforge.tess4j.TessAPI.TessResultIterator;
 import net.sourceforge.tess4j.util.Utils;
 
 import com.sun.jna.Pointer;
@@ -194,7 +195,7 @@ public class Tesseract implements ITesseract {
     /**
      * Initializes Tesseract engine.
      */
-    private void init() {
+    public void init() {
         pageNum = 0;
         api = TessAPI.INSTANCE;
         handle = api.TessBaseAPICreate();
@@ -205,7 +206,7 @@ public class Tesseract implements ITesseract {
     /**
      * Sets Tesseract's internal parameters.
      */
-    private void setTessVariables() {
+    public void setTessVariables() {
         final Enumeration<?> em = prop.propertyNames();
         while (em.hasMoreElements()) {
             final String key = (String) em.nextElement();
@@ -225,7 +226,7 @@ public class Tesseract implements ITesseract {
      * @param bpp bits per pixel, represents the bit depth of the image, with 1
      * for binary bitmap, 8 for gray, and 24 for color RGB.
      */
-    private void setImage(final int xsize, final int ysize, final ByteBuffer buf, final Rectangle rect, final int bpp) {
+    public void setImage(final int xsize, final int ysize, final ByteBuffer buf, final Rectangle rect, final int bpp) {
         final int bytespp = bpp / 8;
         final int bytespl = (int) Math.ceil(xsize * bpp / 8.0);
         api.TessBaseAPISetImage(handle, buf, xsize, ysize, bytespp, bytespl);
@@ -240,17 +241,17 @@ public class Tesseract implements ITesseract {
      * 
      * @return the recognized text
      */
-    private String getOCRText() {
-        final Pointer utf8Text = hocr ? api.TessBaseAPIGetHOCRText(handle, pageNum - 1) : api.TessBaseAPIGetUTF8Text(handle);
-        final String str = utf8Text.getString(0);
-        api.TessDeleteText(utf8Text);
-        return str;
+    public String getOCRText() {
+		final Pointer utf8Text = hocr ? api.TessBaseAPIGetHOCRText(handle, pageNum - 1) : api.TessBaseAPIGetUTF8Text(handle);
+		final String str = utf8Text.getString(0);
+		api.TessDeleteText(utf8Text);
+		return str;
     }
     
     /**
      * Releases all of the native resources used by this instance.
      */    
-    private void dispose() {
+    public void dispose() {
         api.TessBaseAPIDelete(handle);
     }
 
