@@ -16,6 +16,8 @@ Require-Bundle: org.knime.base;bundle-version="[2.8.0,3.0.0)",
  scijava-common;bundle-version="2.37.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: knip_ocr.jar,
- lib/jna.jar
+ lib/jna.jar,
+ lib/tess4j-lw-3.0.0-SNAPSHOT.jar,
+ lib/lept4j-1.0.0-SNAPSHOT.jar
 Bundle-Activator: org.knime.knip.tess4j.base.node.Tess4JNodeActivator
 Bundle-ActivationPolicy: lazy 
