@@ -57,7 +57,6 @@ import net.imglib2.type.numeric.RealType;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.util.ImageHelper;
-import net.sourceforge.tess4j.util.Utils;
 
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.ExecutionContext;
@@ -102,7 +101,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 		// JNA interface mapping
 		m_tessInstance = new Tesseract();
-
+		
 		// tell tesseract which and language path to use
 		m_tessInstance.setDatapath(m_settings.getTessdataPath());
 		m_tessInstance.setLanguage(m_settings.getLanguage());
@@ -110,7 +109,13 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		m_tessInstance.setPageSegMode(m_settings.getPageSegMode());
 		m_tessInstance.setHocr(false);
 
-		m_tessInstance.init();
+		try {
+			m_tessInstance.init();
+		} catch (Throwable e) {
+			e.printStackTrace();
+			getLogger().error(e.getMessage());
+		}
+		
 		m_tessInstance.setTessVariables();
 	}
 
