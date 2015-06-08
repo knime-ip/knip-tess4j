@@ -52,7 +52,7 @@ public class Tess4JNodeSettings {
 	 */
 	public static SettingsModelInteger createTessPageSegModeModel() {
 		return new SettingsModelInteger("PageSegMode",
-				ITesseract.PageSegMode.PSM_SINGLE_BLOCK.m_mode);
+				ITesseract.PageSegMode.PSM_AUTO_ONLY.m_mode);
 	}
 
 	/**
