@@ -9,6 +9,7 @@ import net.sourceforge.tess4j.ITesseract;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -24,6 +25,7 @@ public class Tess4JNodeSettings {
 	private final SettingsModelOptionalString m_pathModel = createTessdataPathModel();
 	private final SettingsModelInteger m_pageSegMode = createTessPageSegModeModel();
 	private final SettingsModelInteger m_ocrEngineMode = createTessOcrEngineModeModel();
+	private final SettingsModelBoolean m_deskewModel = createTessDeskewModel();
 
 	/**
 	 * Creates a SetingsModel for the Tesseract Language
@@ -62,6 +64,14 @@ public class Tess4JNodeSettings {
 		return new SettingsModelInteger("OcrEngineMode",
 				ITesseract.OcrEngineMode.OEM_DEFAULT.m_mode);
 	}
+	
+	/**
+	 * Creates a SettingsModel for using deskew
+	 * @return
+	 */
+	public static SettingsModelBoolean createTessDeskewModel() {
+		return new SettingsModelBoolean("Deskew", true);
+	}
 
 	/**
 	 * Add settings to settingsModels.
@@ -73,6 +83,7 @@ public class Tess4JNodeSettings {
 		settingsModels.add(m_pathModel);
 		settingsModels.add(m_pageSegMode);
 		settingsModels.add(m_ocrEngineMode);
+		settingsModels.add(m_deskewModel);
 	}
 
 	/**
@@ -102,6 +113,13 @@ public class Tess4JNodeSettings {
 	public SettingsModelInteger ocrEngineModeModel() {
 		return m_ocrEngineMode;
 	}
+	
+	/**
+	 * @return {@link SettingsModel} for the OCR Engine to use.
+	 */
+	public SettingsModelBoolean deskewModel() {
+		return m_deskewModel;
+	}
 
 	/**
 	 * @return the language to use for OCR.
@@ -109,7 +127,7 @@ public class Tess4JNodeSettings {
 	public String getLanguage() {
 		return languageModel().getStringValue();
 	}
-
+	
 	/**
 	 * @return Path to tesseract language data. (tessdata folder)
 	 */
@@ -136,6 +154,13 @@ public class Tess4JNodeSettings {
 	 */
 	public int getOcrEngineMode() {
 		return ocrEngineModeModel().getIntValue();
+	}
+	
+	/**
+	 * @return the language to use for OCR.
+	 */
+	public boolean useDeskew() {
+		return deskewModel().getBooleanValue();
 	}
 	
 	/**
