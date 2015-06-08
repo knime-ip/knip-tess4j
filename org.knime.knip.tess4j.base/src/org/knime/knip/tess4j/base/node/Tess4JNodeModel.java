@@ -93,9 +93,9 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
 
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
-	
+
 	private static final ReentrantLock lock = new ReentrantLock();
-	
+
 	private final Tess4JNodeSettings m_settings = new Tess4JNodeSettings();
 	private Tesseract m_tessInstance;
 
@@ -104,11 +104,11 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		if (lock.isLocked()) {
 			this.setWarningMessage("Waiting for other Tess4J Nodes to complete.");
 		}
-		
+
 		lock.lock();
-		
+
 		this.setWarningMessage(null);
-		
+
 		// JNA interface mapping
 		m_tessInstance = Tesseract.getInstance();
 
@@ -117,11 +117,12 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		m_tessInstance.setLanguage(m_settings.getLanguage());
 		m_tessInstance.setOcrEngineMode(m_settings.getOcrEngineMode());
 		m_tessInstance.setPageSegMode(m_settings.getPageSegMode());
-		
+		m_tessInstance.setHocr(false);
+
 		m_tessInstance.init();
 		m_tessInstance.setTessVariables();
-    }
-	
+	}
+
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
@@ -129,18 +130,19 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		try {
 			ret = super.execute(inObjects, exec);
 		} catch (final Exception e) {
-            getLogger().error(e.getMessage(), e);
-            throw new TesseractException(e);
-        }finally {
+			getLogger().error(e.getMessage(), e);
+			throw new TesseractException(e);
+		} finally {
 			cleanupExecute();
 		}
 		return ret;
 	}
 
 	@Override
-	protected StringCell compute(final ImgPlusValue<T> cellValue) throws Exception {
+	protected StringCell compute(final ImgPlusValue<T> cellValue)
+			throws Exception {
 		String result = "";
-		
+
 		try {
 			// the input image
 			final Img<T> img = cellValue.getImgPlus();
@@ -149,34 +151,38 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
 
 			// Create a BufferedImage from the grey input image
-			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0,
-					1, new long[img.numDimensions()]).image();
-			// java.lang.IllegalArgumentException: Unknown image type 0
-			final ImageDeskew id = new ImageDeskew(bi);
-			// determine skew angle
-			final double imageSkewAngle = id.getSkewAngle();
+			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1,
+					new long[img.numDimensions()]).image();
 
-			if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
-				// deskew the image
-				bi = ImageHelper.rotateImage(bi, -imageSkewAngle);
+			if (m_settings.useDeskew()) {
+				// java.lang.IllegalArgumentException: Unknown image type 0
+				final ImageDeskew id = new ImageDeskew(bi);
+				// determine skew angle
+				final double imageSkewAngle = id.getSkewAngle();
+
+				if ((imageSkewAngle > MINIMUM_DESKEW_THRESHOLD || imageSkewAngle < -(MINIMUM_DESKEW_THRESHOLD))) {
+					// deskew the image
+					bi = ImageHelper.rotateImage(bi, -imageSkewAngle);
+				}
 			}
 
-			m_tessInstance.setImage(bi.getWidth(), bi.getHeight(), Utils.convertImageData(bi), null, bi.getColorModel().getPixelSize());
+			m_tessInstance.setImage(bi.getWidth(), bi.getHeight(), Utils
+					.convertImageData(bi), null, bi.getColorModel()
+					.getPixelSize());
 			result = m_tessInstance.getOCRText();
 
 		} catch (final Exception e) {
-			this.getLogger().error("Execute failed: Exception was thrown.",
-					e);
+			this.getLogger().error("Execute failed: Exception was thrown.", e);
 			e.printStackTrace();
 		}
-		
+
 		return new StringCell(result);
 	}
-	
+
 	protected void cleanupExecute() {
 		m_tessInstance.dispose();
-        lock.unlock();
-    }
+		lock.unlock();
+	}
 
 	@Override
 	protected void addSettingsModels(final List<SettingsModel> settingsModels) {

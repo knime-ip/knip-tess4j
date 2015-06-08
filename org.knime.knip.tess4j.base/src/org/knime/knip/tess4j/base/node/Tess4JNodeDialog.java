@@ -61,6 +61,7 @@ import net.sourceforge.tess4j.ITesseract;
 
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
@@ -106,6 +107,7 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 		addDialogComponent(m_pathChooser);
 		addDialogComponent(m_languageListComponent);
 		
+		addDialogComponent(new DialogComponentBoolean(m_settings.deskewModel(), "Deskew input images"));
 		addDialogComponent(new DialogComponentStringIndexSelection(m_settings.pageSegModeModel(), "Page Segmentation Mode", ITesseract.PageSegMode.m_valueNames));
 		addDialogComponent(new DialogComponentStringIndexSelection(m_settings.ocrEngineModeModel(), "OCR Engine Mode", ITesseract.OcrEngineMode.m_valueNames));
 	}

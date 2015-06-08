@@ -35,6 +35,16 @@ http://knime.org/node/v2.10.xsd">
 				will automatically be listed here.
 			</option>
 			
+			<option name="Deskew input images">
+				Some images may not be exactly horizontal, but rather slightly rotated. If this
+				option is checked, the node will undo the rotation. This comes with a slight
+				performance cost, so if you know that the text in your images is perfectly
+				horizontal, be sure to turn this off.
+				
+				If images are slightly rotated, this option is required, since optical character
+				recognition will not work properly otherwise.
+			</option>
+			
 			<option name="Page Segmentation Mode">
 				Define how your page is segmented here. For flow variables use the ID.
 				<p> Legend: (ID) <b> Name </b> Description </p>
