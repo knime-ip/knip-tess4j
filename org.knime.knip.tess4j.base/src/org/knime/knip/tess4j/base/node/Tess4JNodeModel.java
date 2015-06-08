@@ -49,28 +49,19 @@
 package org.knime.knip.tess4j.base.node;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
-import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import net.sourceforge.tess4j.util.ImageHelper;
 import net.sourceforge.tess4j.util.Utils;
-import net.sourceforge.vietocr.ImageHelper;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.port.PortObject;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeModel;
@@ -110,7 +101,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		this.setWarningMessage(null);
 
 		// JNA interface mapping
-		m_tessInstance = Tesseract.getInstance();
+		m_tessInstance = new Tesseract();
 
 		// tell tesseract which and language path to use
 		m_tessInstance.setDatapath(m_settings.getTessdataPath());
@@ -166,10 +157,8 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 				}
 			}
 
-			m_tessInstance.setImage(bi.getWidth(), bi.getHeight(), Utils
-					.convertImageData(bi), null, bi.getColorModel()
-					.getPixelSize());
-			result = m_tessInstance.getOCRText();
+			m_tessInstance.setImage(bi, null);
+			result = m_tessInstance.getOCRText(result, m_currentCellIdx);
 
 		} catch (final Exception e) {
 			this.getLogger().error("Execute failed: Exception was thrown.", e);
