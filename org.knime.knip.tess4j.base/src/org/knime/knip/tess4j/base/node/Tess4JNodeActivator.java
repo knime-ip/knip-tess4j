@@ -77,8 +77,7 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 	/*
 	 * System specific shared libraries in order of dependency.
 	 */
-	private static String[] LINUX = { "z", "jbig", "tiff", "png12", "webp",
-			"jpeg", "gif", "lept" };
+	private static String[] LINUX = { "lept" };
 
 	private static String[] MAC = { "png16.16", "jpeg.8", "lept.4", "tesseract.3", "tesseract" };
 	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
