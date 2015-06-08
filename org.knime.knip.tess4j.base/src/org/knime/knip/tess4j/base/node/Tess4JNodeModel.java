@@ -92,15 +92,11 @@ import com.recognition.software.jdeskew.ImageDeskew;
 public class Tess4JNodeModel<T extends RealType<T>> extends
 		ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
 
-	private final SettingsModelString m_languageModel = createTessLanguageModel();
-	private final SettingsModelOptionalString m_pathModel = createTessdataPathModel();
-	private final SettingsModelInteger m_pageSegMode = createTessPageSegModeModel();
-	private final SettingsModelInteger m_ocrEngineMode = createTessOcrEngineModeModel();
-
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 	
 	private static final ReentrantLock lock = new ReentrantLock();
 	
+	private final Tess4JNodeSettings m_settings = new Tess4JNodeSettings();
 	private Tesseract m_tessInstance;
 
 	@Override
@@ -116,21 +112,11 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		// JNA interface mapping
 		m_tessInstance = Tesseract.getInstance();
 
-		String path = null;
-		if (m_pathModel.isActive()) {
-			// User defined language path
-			path = m_pathModel.getStringValue();
-		} else {
-			// Our language path
-			path = Tess4JNodeModel
-					.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
-		}
-
 		// tell tesseract which and language path to use
-		m_tessInstance.setDatapath(path);
-		m_tessInstance.setLanguage(m_languageModel.getStringValue());
-		m_tessInstance.setOcrEngineMode(m_ocrEngineMode.getIntValue());
-		m_tessInstance.setPageSegMode(m_pageSegMode.getIntValue());
+		m_tessInstance.setDatapath(m_settings.getTessdataPath());
+		m_tessInstance.setLanguage(m_settings.getLanguage());
+		m_tessInstance.setOcrEngineMode(m_settings.getOcrEngineMode());
+		m_tessInstance.setPageSegMode(m_settings.getPageSegMode());
 		
 		m_tessInstance.init();
 		m_tessInstance.setTessVariables();
@@ -194,62 +180,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 	@Override
 	protected void addSettingsModels(final List<SettingsModel> settingsModels) {
-		settingsModels.add(m_languageModel);
-		settingsModels.add(m_pathModel);
-		settingsModels.add(m_pageSegMode);
-		settingsModels.add(m_ocrEngineMode);
-	}
-
-	/**
-	 * Creates a SetingsModel for the Tesseract Language
-	 * 
-	 * @return
-	 */
-	public static SettingsModelString createTessLanguageModel() {
-		return new SettingsModelString("TessLanguage", "eng");
-	}
-
-	/**
-	 * Creates a SettingsModel for the Tesseract Datapath
-	 * 
-	 * @return
-	 */
-	public static SettingsModelOptionalString createTessdataPathModel() {
-		return new SettingsModelOptionalString("TessdataPath", "", false);
-	}
-	
-	/**
-	 * Creates a SettingsModel for Tesseract Page Segmentation Mode
-	 * 
-	 * @return
-	 */
-	public static SettingsModelInteger createTessPageSegModeModel() {
-		return new SettingsModelInteger("PageSegMode", ITesseract.PageSegMode.PSM_SINGLE_BLOCK.m_mode);
-	}
-	
-	/**
-	 * Creates a SettingsModel for Tesseract OCR Engine Mode
-	 * 
-	 * @return
-	 */
-	public static SettingsModelInteger createTessOcrEngineModeModel() {
-		return new SettingsModelInteger("OcrEngineMode", ITesseract.OcrEngineMode.OEM_DEFAULT.m_mode);
-	}
-
-	/**
-	 * Helper Function to resolve platform urls
-	 * 
-	 * @param platformurl
-	 * @return
-	 */
-	public static String getEclipsePath(final String platformurl) {
-		try {
-			final URL url = new URL(platformurl);
-			final File dir = new File(FileLocator.resolve(url).getFile());
-			return dir.getAbsolutePath();
-		} catch (final IOException e) {
-			return null;
-		}
+		m_settings.addSettingsModels(settingsModels);
 	}
 
 }

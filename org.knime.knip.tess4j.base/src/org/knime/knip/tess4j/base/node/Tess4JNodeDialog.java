@@ -62,9 +62,6 @@ import net.sourceforge.tess4j.ITesseract;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
-import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 
@@ -82,50 +79,44 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
 public class Tess4JNodeDialog<T extends RealType<T>> extends
 		ValueToCellNodeDialog<ImgPlusValue<T>> implements ChangeListener {
 
-	private DialogComponentStringSelection m_languageList;
+	private DialogComponentStringSelection m_languageListComponent;
 	private DialogComponentAlternatePathChooser m_pathChooser;
 
-	private SettingsModelOptionalString m_pathModel;
-	private SettingsModelString m_languageModel;
-	private String[] m_languages;
-	
-	private SettingsModelInteger m_pageSegMode;
-	private SettingsModelInteger m_ocrEngineMode;
+	private final Tess4JNodeSettings m_settings = new Tess4JNodeSettings();
+	private final List<String> m_languages = new ArrayList<String>();
 
+	public Tess4JNodeDialog() {
+		super(true);
+		
+		addDialogComponents();
+        buildDialog();
+	}
+	
 	@Override
 	public void addDialogComponents() {
-		m_pathModel = Tess4JNodeModel.createTessdataPathModel();
-		m_languageModel = Tess4JNodeModel.createTessLanguageModel();
-		m_pageSegMode = Tess4JNodeModel.createTessPageSegModeModel();
-		m_ocrEngineMode = Tess4JNodeModel.createTessOcrEngineModeModel();
-				
 		updateLanguages();
 
-		m_languageList = new DialogComponentStringSelection(m_languageModel,
+		m_languageListComponent = new DialogComponentStringSelection(m_settings.languageModel(),
 				"Language", m_languages);
 
-		m_pathChooser = new DialogComponentAlternatePathChooser(m_pathModel);
+		m_pathChooser = new DialogComponentAlternatePathChooser(m_settings.pathModel());
 
-		m_pathModel.addChangeListener(this);
+		m_settings.pathModel().addChangeListener(this);
 
 		addDialogComponent(m_pathChooser);
-		addDialogComponent(m_languageList);
+		addDialogComponent(m_languageListComponent);
 		
-		addDialogComponent(new DialogComponentStringIndexSelection(m_pageSegMode, "Page Segmentation Mode", ITesseract.PageSegMode.m_valueNames));
-		addDialogComponent(new DialogComponentStringIndexSelection(m_ocrEngineMode, "OCR Engine Mode", ITesseract.OcrEngineMode.m_valueNames));
+		addDialogComponent(new DialogComponentStringIndexSelection(m_settings.pageSegModeModel(), "Page Segmentation Mode", ITesseract.PageSegMode.m_valueNames));
+		addDialogComponent(new DialogComponentStringIndexSelection(m_settings.ocrEngineModeModel(), "OCR Engine Mode", ITesseract.OcrEngineMode.m_valueNames));
 	}
 
 	@Override
 	public void stateChanged(final ChangeEvent evt) {
-		if (evt.getSource().equals(m_pathModel)) {
+		if (evt.getSource().equals(m_settings.pathModel())) {
 			updateLanguages();
 
-			final ArrayList<String> list = new ArrayList<String>();
-			for (final String s : m_languages) {
-				list.add(s);
-			}
-			
-			m_languageList.replaceListItems(list, null);
+			// null tries to keep previous selection.
+			m_languageListComponent.replaceListItems(m_languages, null);
 		}
 	}
 
@@ -134,60 +125,45 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 	 * @return true if one or more .tessdata files were found, false otherwise
 	 */
 	private boolean updateLanguages() {
-		String path = null;
-
-		if (m_pathModel.isActive()) {
-			path = m_pathModel.getStringValue();
-		} else {
-			path = Tess4JNodeModel
-					.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
-		}
-
-		final File file = new File(path);
+		m_languages.clear();
+		
+		final File file = new File(m_settings.getTessdataPath());
 
 		if (!file.exists()) {
-			//path is invalid.
-			m_languages = new String[] {"Invalid Path"};
+			m_languages.add("Invalid path");
 			return false;
 		}
 
-		final File[] files = new File(path).listFiles();
-
-		final List<String> list = new ArrayList<String>();
-		for (final File f : files) {
+		for (final File f : file.listFiles()) {
 			if (!f.isDirectory()) {
-				String language = f.getName();
+				final String langFilename = f.getName();
 
-				if (language.length() < 13
-						|| !language.substring(language.length() - 12).equals(
-								".traineddata")) {
+				if (!langFilename.endsWith(".traineddata")) {
 					continue;
 				}
 
-				language = language.substring(0, language.length() - 12);
-
-				list.add(language);
+				m_languages.add(langFilename.substring(0, langFilename.length() - 12));
 			}
 		}
 
-		if (list.isEmpty()) {
-			m_languages = new String[] {"Invalid Path"};
+		if (m_languages.isEmpty()) {
+			m_languages.add("No language files found");
 			return false;
 		}
 		
-		Collections.sort(list);
-		m_languages = list.toArray(new String[] {});
-		
+		Collections.sort(m_languages);
+
 		return true;
 	}
+	
+	
 	
 	@Override
 	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		if (!updateLanguages()) { 
-			throw new InvalidSettingsException("No tesseract language files (.tessdata) found in selected path.");
+			throw new InvalidSettingsException("No tesseract language (.tessdata) files found in selected path.");
 		}
-		
 		
 		super.saveAdditionalSettingsTo(settings);
 	}
