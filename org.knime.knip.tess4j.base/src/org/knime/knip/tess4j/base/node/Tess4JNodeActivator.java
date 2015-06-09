@@ -80,8 +80,7 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 	private static String[] LINUX = { "lept" };
 
 	private static String[] MAC = { "png16.16", "jpeg.8", "lept.4", "tesseract.3", "tesseract" };
-	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
-			"libtesseract302" };
+	private static String[] WINDOWS = { "liblept-4", "libtesseract-3" };
 
 	/**
 	 * {@inheritDoc}
