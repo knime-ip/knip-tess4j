@@ -6,7 +6,7 @@
       <nodeset
             expert-flag="false"
             factory-class="org.knime.knip.tess4j.base.node.Tess4JNodeSetFactory"
-            id="org.knime.knip.tess4j.base.node.Tess4JNodeSetFactory">
+            id="org.knime.knip.tess4j.base.node.set">
       </nodeset>
    </extension>
 
