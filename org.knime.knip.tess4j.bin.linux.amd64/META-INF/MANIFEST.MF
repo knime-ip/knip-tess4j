@@ -8,14 +8,7 @@ Fragment-Host: org.knime.knip.tess4j.base;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-PlatformFilter: (&(osgi.os=linux)(osgi.arch=x86_64))
 Bundle-NativeCode: 
- lib/linux/amd64/libz.so;  
- lib/linux/amd64/libtesseract.so; 
- lib/linux/amd64/libjbig.so; 
- lib/linux/amd64/liblept.so; 
- lib/linux/amd64/libtiff.so; 
- lib/linux/amd64/libjpeg.so; 
- lib/linux/amd64/libpng12.so;  
- lib/linux/amd64/libgif.so; 
- lib/linux/amd64/libwebp.so;
+ lib/linux/amd64/libtesseract.so;
+ lib/linux/amd64/liblept.so;
  osname=Linux;
  processor=x86_64
