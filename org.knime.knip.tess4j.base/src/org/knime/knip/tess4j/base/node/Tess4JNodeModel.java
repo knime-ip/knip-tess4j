@@ -84,20 +84,14 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
-	private static final ReentrantLock lock = new ReentrantLock();
-
 	private final Tess4JNodeSettings m_settings = new Tess4JNodeSettings();
 	private Tesseract m_tessInstance;
 
 	@Override
 	protected void prepareExecute(final ExecutionContext exec) {
-		if (lock.isLocked()) {
-			this.setWarningMessage("Waiting for other Tess4J Nodes to complete.");
-		}
-
-		lock.lock();
 
 		this.setWarningMessage(null);
+		exec.setMessage("Preparing execution");
 
 		// JNA interface mapping
 		m_tessInstance = new Tesseract();
@@ -108,6 +102,12 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		m_tessInstance.setOcrEngineMode(m_settings.getOcrEngineMode());
 		m_tessInstance.setPageSegMode(m_settings.getPageSegMode());
 		m_tessInstance.setHocr(false);
+		
+		getLogger().debug("Preparing Tess4JNode execution: ");
+		getLogger().debug("Tessdata path: " + m_settings.getTessdataPath());
+		getLogger().debug("Language: " + m_settings.getLanguage());
+		getLogger().debug("OCR Engine Mode: " + m_settings.getOcrEngineMode());
+		getLogger().debug("Page Segmentation Mode: " + m_settings.getPageSegMode());
 
 		try {
 			m_tessInstance.init();
@@ -116,13 +116,20 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			getLogger().error(e.getMessage());
 		}
 		
+		getLogger().debug("Initialized tesseract.");
+		
 		m_tessInstance.setTessVariables();
 	}
 
+	private ExecutionContext context;
+	
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		PortObject[] ret = null;
+		
+		context = exec;
+		
 		try {
 			ret = super.execute(inObjects, exec);
 		} catch (final Exception e) {
@@ -131,6 +138,9 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		} finally {
 			cleanupExecute();
 		}
+		
+		context = null;
+		
 		return ret;
 	}
 
@@ -151,6 +161,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 					new long[img.numDimensions()]).image();
 
 			if (m_settings.useDeskew()) {
+				context.setMessage("Deskew");
 				// java.lang.IllegalArgumentException: Unknown image type 0
 				final ImageDeskew id = new ImageDeskew(bi);
 				// determine skew angle
@@ -162,12 +173,15 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 				}
 			}
 
+			context.setMessage("Recognition");
 			m_tessInstance.setImage(bi, null);
 			result = m_tessInstance.getOCRText(result, m_currentCellIdx);
 
 		} catch (final Exception e) {
 			this.getLogger().error("Execute failed: Exception was thrown.", e);
 			e.printStackTrace();
+		} finally {
+			context.setMessage(null);
 		}
 
 		return new StringCell(result);
@@ -175,7 +189,6 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 	protected void cleanupExecute() {
 		m_tessInstance.dispose();
-		lock.unlock();
 	}
 
 	@Override
