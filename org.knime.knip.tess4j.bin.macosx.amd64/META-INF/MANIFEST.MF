@@ -8,9 +8,8 @@ Fragment-Host: org.knime.knip.tess4j.base;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-PlatformFilter: (&(osgi.os=macosx)(osgi.arch=x86_64))
 Bundle-NativeCode: 
- lib/macosx/amd64/libjpeg.8.dylib;  
- lib/macosx/amd64/libpng16.16.dylib;
  lib/macosx/amd64/liblept.4.dylib;
+ lib/macosx/amd64/liblept.dylib;
  lib/macosx/amd64/libtesseract.dylib; 
  lib/macosx/amd64/libtesseract.3.dylib; 
  osname=macosx;
