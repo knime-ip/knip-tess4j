@@ -14,9 +14,6 @@ http://knime.org/node/v2.10.xsd">
 
 			You may change the language and Tesseract datapath (path to language files) in the
 			node configuration.
-			
-			Please note, that this node can not be run multi-threaded, therefore only one Tess4J
-			node runs at once and other Tess4J nodes wait for it's completion.
 		</intro>
 		<tab name="Options">
 			<option name="Tessdata Path" optional="true">
@@ -110,7 +107,7 @@ http://knime.org/node/v2.10.xsd">
 				<ul>
 					<li> (0) 
 						<b> Tesseract Only </b>
-						 Only use Tesseract. (fastest) 
+						 Only use Tesseract. (Fastest) 
 					</li>
 					<li> (1) 
 						<b> Cube Only </b>
@@ -118,7 +115,7 @@ http://knime.org/node/v2.10.xsd">
 					</li>
 					<li> (2) 
 						<b> Tesseract And Cube </b>
-						 Use both of the above and combine results. ((best accuracy) 
+						 Use both of the above and combine results. (Best accuracy) 
 					</li>
 					<li> (3) 
 						<b> Default </b>
@@ -131,10 +128,7 @@ http://knime.org/node/v2.10.xsd">
 
 	<ports>
 		<inPort name="Image containing Text" index="0">
-			Text as Images. To get
-			better results, normalize and convert the image to black and
-			white.
-			This can be done with a global thresholder, for example.
+			Text as Images.
 		</inPort>
 		<outPort index="0" name="String">OCR Result String</outPort>
 	</ports>
