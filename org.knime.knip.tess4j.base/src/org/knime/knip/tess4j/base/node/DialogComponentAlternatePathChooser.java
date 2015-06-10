@@ -48,6 +48,7 @@
  */
 package org.knime.knip.tess4j.base.node;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -102,7 +103,7 @@ public class DialogComponentAlternatePathChooser extends DialogComponent
 	 * @param model
 	 *            the Node model to be used
 	 */
-	public DialogComponentAlternatePathChooser(SettingsModelOptionalString model) {
+	public DialogComponentAlternatePathChooser(String name, SettingsModelOptionalString model) {
 		super(model);
 
 		m_settingsModel = model;
@@ -147,7 +148,7 @@ public class DialogComponentAlternatePathChooser extends DialogComponent
 		group.add(m_rb1);
 		group.add(m_rb2);
 
-		TitledBorder border = BorderFactory.createTitledBorder("Tessdata Path");
+		TitledBorder border = BorderFactory.createTitledBorder(name);
 		m_contents.setBorder(border);
 
 		m_contents.add(m_rb1, gbc_rb1);
@@ -157,6 +158,11 @@ public class DialogComponentAlternatePathChooser extends DialogComponent
 
 		m_textField.setEnabled(m_settingsModel.isActive());
 		m_button.setEnabled(m_settingsModel.isActive());
+		
+		// set maximal width and minimal height.
+		Dimension dim = new Dimension(Integer.MAX_VALUE, (int)m_contents.getPreferredSize().getHeight());
+		m_contents.setMaximumSize(dim);
+		m_contents.setPreferredSize(m_contents.getPreferredSize());
 	}
 
 	@Override
