@@ -8,6 +8,10 @@ Fragment-Host: org.knime.knip.tess4j.base;bundle-version="0.8.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86))
 Bundle-NativeCode: 
- lib/windows/x86/liblept168.dll ; lib/windows/x86/libtesseract302.dll ; lib/windows/x86/msvcr110.dll; lib/windows/x86/msvcp110.dll;
+ lib/windows/x86/libgcc_s_dw2-1.dll
+ lib/windows/x86/liblept-4.dll
+ lib/windows/x86/libstdc++-6.dll
+ lib/windows/x86/libtesseract-3.dll
+ lib/windows/x86/libwinpthread-1.dll
  osname=win32;
  processor=x86
