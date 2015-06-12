@@ -48,6 +48,8 @@
  */
 package org.knime.knip.tess4j.base.node;
 
+import net.sourceforge.tess4j.util.LoadLibs;
+
 import org.knime.knip.base.activators.LinuxSystemLibraryConfig;
 import org.knime.knip.base.activators.MacOSXSystemLibraryConfig;
 import org.knime.knip.base.activators.NativeLibBundleActivator;
@@ -69,20 +71,21 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 	public Tess4JNodeActivator() {
 		super("org.knime.knip.tess4j", true);
 
-		addConfig(new WindowsSystemLibraryConfig(WINDOWS));
+		addConfig(new WindowsSystemLibraryConfig(WINDOWS_amd64));
 		addConfig(new LinuxSystemLibraryConfig(LINUX));
 		addConfig(new MacOSXSystemLibraryConfig(MAC));
+		
+		LoadLibs.setTesseractLibraryName("libtesseract-3");
 	}
 
 	/*
 	 * System specific shared libraries in order of dependency.
 	 */
-	private static String[] LINUX = { "z", "jbig", "tiff", "png12", "webp",
-			"jpeg", "gif", "lept" };
+	private static String[] LINUX = { "lept" };
 
-	private static String[] MAC = { "png16.16", "jpeg.8", "lept.4", "tesseract.3", "tesseract" };
-	private static String[] WINDOWS = { "msvcr110", "msvcp110", "liblept168",
-			"libtesseract302" };
+	private static String[] MAC = {"lept.4", "tesseract.3", "tesseract" };
+	private static String[] WINDOWS_amd64 = { "libwinpthread-1", "libgcc_s_seh-1", "libstdc++-6", "liblept-4", "libtesseract-3" };
+	private static String[] WINDOWS_x86 = { "libwinpthread-1", "libgcc_s_dw2-1", "libstdc++-6", "liblept-4", "libtesseract-3" };
 
 	/**
 	 * {@inheritDoc}

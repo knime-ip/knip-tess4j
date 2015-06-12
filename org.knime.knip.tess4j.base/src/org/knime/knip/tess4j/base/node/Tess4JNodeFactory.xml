@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./ocr_icon.png" type="Manipulator">
+<knimeNode icon="./ocr_icon.png" type="Manipulator"
+	xmlns="http://knime.org/node/v2.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.10
+http://knime.org/node/v2.10.xsd">
+
 	<name>Tess4J</name>
 
 	<shortDescription>
@@ -13,9 +14,6 @@
 
 			You may change the language and Tesseract datapath (path to language files) in the
 			node configuration.
-			
-			Please note, that this node can not be run multi-threaded, therefore only one Tess4J
-			node runs at once and other Tess4J nodes wait for it's completion.
 		</intro>
 		<tab name="Options">
 			<option name="Tessdata Path" optional="true">
@@ -32,6 +30,16 @@
 
 				If you have your own tessdata path defined, languages found in that path
 				will automatically be listed here.
+			</option>
+			
+			<option name="Deskew input images">
+				Some images may not be exactly horizontal, but rather slightly rotated. If this
+				option is checked, the node will undo the rotation. This comes with a slight
+				performance cost, so if you know that the text in your images is perfectly
+				horizontal, be sure to turn this off.
+				
+				If images are slightly rotated, this option is required, since optical character
+				recognition will not work properly otherwise.
 			</option>
 			
 			<option name="Page Segmentation Mode">
@@ -99,7 +107,7 @@
 				<ul>
 					<li> (0) 
 						<b> Tesseract Only </b>
-						 Only use Tesseract. (fastest) 
+						 Only use Tesseract. (Fastest) 
 					</li>
 					<li> (1) 
 						<b> Cube Only </b>
@@ -107,7 +115,7 @@
 					</li>
 					<li> (2) 
 						<b> Tesseract And Cube </b>
-						 Use both of the above and combine results. ((best accuracy) 
+						 Use both of the above and combine results. (Best accuracy) 
 					</li>
 					<li> (3) 
 						<b> Default </b>
@@ -120,10 +128,7 @@
 
 	<ports>
 		<inPort name="Image containing Text" index="0">
-			Text as Images. To get
-			better results, normalize and convert the image to black and
-			white.
-			This can be done with a global thresholder, for example.
+			Text as Images.
 		</inPort>
 		<outPort index="0" name="String">OCR Result String</outPort>
 	</ports>

@@ -57,7 +57,7 @@ import org.knime.knip.base.node.ValueToCellNodeFactory;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 
 /**
- * TODO
+ * Factory for the {@link Tess4JNodeModel} and the {@link Tess4JNodeDialog}.
  * 
  * @author <a href="mailto:dietzc85@googlemail.com">Christian Dietz</a>
  * @author <a href="mailto:jonathan.hale@uni-konstanz.de">Jonathan Hale</a>
