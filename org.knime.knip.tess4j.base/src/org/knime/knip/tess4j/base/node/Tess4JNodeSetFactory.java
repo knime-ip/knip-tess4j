@@ -84,7 +84,7 @@ public class Tess4JNodeSetFactory implements NodeSetFactory {
 	 */
 	@Override
 	public String getAfterID(final String id) {
-		return "/";
+		return "";
 	}
 
 	/**
