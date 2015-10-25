@@ -51,8 +51,7 @@ public class Tess4JNodeSettings {
 	 * @return
 	 */
 	public static SettingsModelInteger createTessPageSegModeModel() {
-		return new SettingsModelInteger("PageSegMode",
-				ITesseract.PageSegMode.PSM_AUTO_ONLY.m_mode);
+		return new SettingsModelInteger("PageSegMode", ITesseract.PageSegMode.PSM_AUTO_ONLY.m_mode);
 	}
 
 	/**
@@ -61,12 +60,12 @@ public class Tess4JNodeSettings {
 	 * @return
 	 */
 	public static SettingsModelInteger createTessOcrEngineModeModel() {
-		return new SettingsModelInteger("OcrEngineMode",
-				ITesseract.OcrEngineMode.OEM_DEFAULT.m_mode);
+		return new SettingsModelInteger("OcrEngineMode", ITesseract.OcrEngineMode.OEM_DEFAULT.m_mode);
 	}
-	
+
 	/**
 	 * Creates a SettingsModel for using deskew
+	 * 
 	 * @return
 	 */
 	public static SettingsModelBoolean createTessDeskewModel() {
@@ -113,7 +112,7 @@ public class Tess4JNodeSettings {
 	public SettingsModelInteger ocrEngineModeModel() {
 		return m_ocrEngineMode;
 	}
-	
+
 	/**
 	 * @return {@link SettingsModel} for the OCR Engine to use.
 	 */
@@ -127,7 +126,7 @@ public class Tess4JNodeSettings {
 	public String getLanguage() {
 		return languageModel().getStringValue();
 	}
-	
+
 	/**
 	 * @return Path to tesseract language data. (tessdata folder)
 	 */
@@ -135,11 +134,9 @@ public class Tess4JNodeSettings {
 		if (pathModel().isActive()) {
 			// User defined language path
 			return pathModel().getStringValue();
-		} else {
-			// Our built-in language path
-			return Tess4JNodeSettings
-					.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
 		}
+		// Our built-in language path
+		return Tess4JNodeSettings.getEclipsePath("platform:/plugin/org.knime.knip.tess4j.base/tessdata/");
 	}
 
 	/**
@@ -155,14 +152,14 @@ public class Tess4JNodeSettings {
 	public int getOcrEngineMode() {
 		return ocrEngineModeModel().getIntValue();
 	}
-	
+
 	/**
 	 * @return the language to use for OCR.
 	 */
 	public boolean useDeskew() {
 		return deskewModel().getBooleanValue();
 	}
-	
+
 	/**
 	 * Helper Function to resolve platform urls
 	 * 

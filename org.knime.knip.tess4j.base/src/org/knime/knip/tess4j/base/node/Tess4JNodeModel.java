@@ -50,13 +50,6 @@ package org.knime.knip.tess4j.base.node;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
-
-import net.imglib2.img.Img;
-import net.imglib2.type.numeric.RealType;
-import net.sourceforge.tess4j.Tesseract;
-import net.sourceforge.tess4j.TesseractException;
-import net.sourceforge.tess4j.util.ImageHelper;
 
 import org.knime.core.data.def.StringCell;
 import org.knime.core.node.ExecutionContext;
@@ -67,6 +60,12 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.Real2GreyRenderer;
 
 import com.recognition.software.jdeskew.ImageDeskew;
+
+import net.imglib2.img.Img;
+import net.imglib2.type.numeric.RealType;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
+import net.sourceforge.tess4j.util.ImageHelper;
 
 /**
  * Tess4JNodeModel

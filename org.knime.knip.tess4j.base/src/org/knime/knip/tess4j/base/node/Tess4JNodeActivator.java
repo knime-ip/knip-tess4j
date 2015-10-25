@@ -85,7 +85,7 @@ public class Tess4JNodeActivator extends NativeLibBundleActivator {
 
 	private static String[] MAC = {"lept.4", "tesseract.3", "tesseract" };
 	private static String[] WINDOWS_amd64 = { "libwinpthread-1", "libgcc_s_seh-1", "libstdc++-6", "liblept-4", "libtesseract-3" };
-	private static String[] WINDOWS_x86 = { "libwinpthread-1", "libgcc_s_dw2-1", "libstdc++-6", "liblept-4", "libtesseract-3" };
+//	private static String[] WINDOWS_x86 = { "libwinpthread-1", "libgcc_s_dw2-1", "libstdc++-6", "liblept-4", "libtesseract-3" };
 
 	/**
 	 * {@inheritDoc}
