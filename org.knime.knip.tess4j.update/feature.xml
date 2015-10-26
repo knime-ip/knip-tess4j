@@ -2,7 +2,7 @@
 <feature
       id="org.knime.knip.tess4j.update"
       label="KNIME Image Processing - Tess4J Integration Update-Site"
-      version="1.2.0.qualifier">
+      version="1.2.1.qualifier">
 
    <includes
          id="org.knime.knip.tess4j.feature"
