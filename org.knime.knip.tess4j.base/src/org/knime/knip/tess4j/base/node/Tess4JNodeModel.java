@@ -81,8 +81,7 @@ import net.sourceforge.tess4j.util.ImageIOHelper;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class Tess4JNodeModel<T extends RealType<T>> extends
-		ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
+public class Tess4JNodeModel<T extends RealType<T>> extends ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
 
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
@@ -97,14 +96,14 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 		// JNA interface mapping
 		m_tessInstance = new Tesseract();
-		
+
 		// tell tesseract which and language path to use
 		m_tessInstance.setDatapath(m_settings.getTessdataPath());
 		m_tessInstance.setLanguage(m_settings.getLanguage());
 		m_tessInstance.setOcrEngineMode(m_settings.getOcrEngineMode());
 		m_tessInstance.setPageSegMode(m_settings.getPageSegMode());
 		m_tessInstance.setHocr(false);
-		
+
 		getLogger().debug("Preparing Tess4JNode execution: ");
 		getLogger().debug("Tessdata path: " + m_settings.getTessdataPath());
 		getLogger().debug("Language: " + m_settings.getLanguage());
@@ -118,21 +117,20 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			getLogger().error("Error initializing Tesseract.", e);
 			throw e;
 		}
-		
+
 		getLogger().debug("Initialized tesseract.");
-		
+
 		m_tessInstance.setTessVariables();
 	}
 
 	private ExecutionContext context;
-	
+
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		PortObject[] ret = null;
-		
+
 		context = exec;
-		
+
 		try {
 			ret = super.execute(inObjects, exec);
 		} catch (final Exception e) {
@@ -141,16 +139,17 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		} finally {
 			cleanupExecute();
 		}
-		
+
 		context = null;
-		
+
 		return ret;
 	}
 
 	@Override
-	protected StringCell compute(final ImgPlusValue<T> cellValue)
-			throws Exception {
+	protected StringCell compute(final ImgPlusValue<T> cellValue) throws Exception {
 		String result = "";
+
+		getLogger().debug(": >" + cellValue.getImgPlus().getImg().getClass().getName());
 
 		try {
 			// the input image
@@ -160,8 +159,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
 
 			// Create a BufferedImage from the grey input image
-			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1,
-					new long[img.numDimensions()]).image();
+			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1, new long[img.numDimensions()]).image();
 
 			if (m_settings.useDeskew()) {
 				context.setMessage("Deskew");
