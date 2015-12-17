@@ -49,6 +49,7 @@
 package org.knime.knip.tess4j.base.node;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.knime.core.data.def.StringCell;
@@ -60,12 +61,14 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.Real2GreyRenderer;
 
 import com.recognition.software.jdeskew.ImageDeskew;
+import com.sun.jna.Pointer;
 
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.util.ImageHelper;
+import net.sourceforge.tess4j.util.ImageIOHelper;
 
 /**
  * Tess4JNodeModel
@@ -78,8 +81,7 @@ import net.sourceforge.tess4j.util.ImageHelper;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class Tess4JNodeModel<T extends RealType<T>> extends
-		ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
+public class Tess4JNodeModel<T extends RealType<T>> extends ValueToCellNodeModel<ImgPlusValue<T>, StringCell> {
 
 	private final double MINIMUM_DESKEW_THRESHOLD = 0.05d;
 
@@ -94,14 +96,14 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 
 		// JNA interface mapping
 		m_tessInstance = new Tesseract();
-		
+
 		// tell tesseract which and language path to use
 		m_tessInstance.setDatapath(m_settings.getTessdataPath());
 		m_tessInstance.setLanguage(m_settings.getLanguage());
 		m_tessInstance.setOcrEngineMode(m_settings.getOcrEngineMode());
 		m_tessInstance.setPageSegMode(m_settings.getPageSegMode());
 		m_tessInstance.setHocr(false);
-		
+
 		getLogger().debug("Preparing Tess4JNode execution: ");
 		getLogger().debug("Tessdata path: " + m_settings.getTessdataPath());
 		getLogger().debug("Language: " + m_settings.getLanguage());
@@ -111,24 +113,24 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		try {
 			m_tessInstance.init();
 		} catch (Throwable e) {
-			e.printStackTrace();
-			getLogger().error(e.getMessage());
+			m_tessInstance = null;
+			getLogger().error("Error initializing Tesseract.", e);
+			throw e;
 		}
-		
+
 		getLogger().debug("Initialized tesseract.");
-		
+
 		m_tessInstance.setTessVariables();
 	}
 
 	private ExecutionContext context;
-	
+
 	@Override
-	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
-			throws Exception {
+	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec) throws Exception {
 		PortObject[] ret = null;
-		
+
 		context = exec;
-		
+
 		try {
 			ret = super.execute(inObjects, exec);
 		} catch (final Exception e) {
@@ -137,16 +139,17 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		} finally {
 			cleanupExecute();
 		}
-		
+
 		context = null;
-		
+
 		return ret;
 	}
 
 	@Override
-	protected StringCell compute(final ImgPlusValue<T> cellValue)
-			throws Exception {
+	protected StringCell compute(final ImgPlusValue<T> cellValue) throws Exception {
 		String result = "";
+
+		getLogger().debug(": >" + cellValue.getImgPlus().getImg().getClass().getName());
 
 		try {
 			// the input image
@@ -156,8 +159,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
 
 			// Create a BufferedImage from the grey input image
-			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1,
-					new long[img.numDimensions()]).image();
+			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1, new long[img.numDimensions()]).image();
 
 			if (m_settings.useDeskew()) {
 				context.setMessage("Deskew");
@@ -173,12 +175,27 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			}
 
 			context.setMessage("Recognition");
-			m_tessInstance.setImage(bi, null);
-			result = m_tessInstance.getOCRText(result, m_currentCellIdx);
+			// convert image to have a byte buffer
+			bi = ImageHelper.convertImageToGrayscale(bi);
+			// convert the byte buffer for native use
+			ByteBuffer convertImageData = ImageIOHelper.convertImageData(bi);
 
+			// pass the image to tesseract
+			final int width = bi.getWidth();
+			final int height = bi.getHeight();
+			final int bytesPerPixel = bi.getColorModel().getPixelSize() / 8;
+			int bytesPerLine = (int) Math.ceil(width * bytesPerPixel);
+			m_tessInstance.getAPI().TessBaseAPISetImage(m_tessInstance.getHandle(), convertImageData, width, height,
+					bytesPerPixel, bytesPerLine);
+
+			// process and get the result
+			Pointer utf8Text = m_tessInstance.getAPI().TessBaseAPIGetUTF8Text(m_tessInstance.getHandle());
+			if (utf8Text != null) {
+				result = utf8Text.getString(0);
+				m_tessInstance.getAPI().TessDeleteText(utf8Text);
+			}
 		} catch (final Exception e) {
-			this.getLogger().error("Execute failed: Exception was thrown.", e);
-			e.printStackTrace();
+			throw e;
 		} finally {
 			context.setMessage(null);
 		}
@@ -187,7 +204,9 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 	}
 
 	protected void cleanupExecute() {
-		m_tessInstance.dispose();
+		if (m_tessInstance != null) {
+			m_tessInstance.dispose();
+		}
 	}
 
 	@Override
