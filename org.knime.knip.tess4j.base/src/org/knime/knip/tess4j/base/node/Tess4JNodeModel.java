@@ -111,8 +111,9 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 		try {
 			m_tessInstance.init();
 		} catch (Throwable e) {
-			e.printStackTrace();
-			getLogger().error(e.getMessage());
+			m_tessInstance = null;
+			getLogger().error("Error initializing Tesseract.", e);
+			throw e;
 		}
 		
 		getLogger().debug("Initialized tesseract.");
@@ -177,8 +178,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			result = m_tessInstance.getOCRText(result, m_currentCellIdx);
 
 		} catch (final Exception e) {
-			this.getLogger().error("Execute failed: Exception was thrown.", e);
-			e.printStackTrace();
+			throw e;
 		} finally {
 			context.setMessage(null);
 		}
@@ -187,7 +187,9 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 	}
 
 	protected void cleanupExecute() {
-		m_tessInstance.dispose();
+		if (m_tessInstance != null) {
+			m_tessInstance.dispose();
+		}
 	}
 
 	@Override
