@@ -49,6 +49,7 @@
 package org.knime.knip.tess4j.base.node;
 
 import java.awt.image.BufferedImage;
+import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.knime.core.data.def.StringCell;
@@ -60,12 +61,14 @@ import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.Real2GreyRenderer;
 
 import com.recognition.software.jdeskew.ImageDeskew;
+import com.sun.jna.Pointer;
 
 import net.imglib2.img.Img;
 import net.imglib2.type.numeric.RealType;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.util.ImageHelper;
+import net.sourceforge.tess4j.util.ImageIOHelper;
 
 /**
  * Tess4JNodeModel
@@ -174,9 +177,25 @@ public class Tess4JNodeModel<T extends RealType<T>> extends
 			}
 
 			context.setMessage("Recognition");
-			m_tessInstance.setImage(bi, null);
-			result = m_tessInstance.getOCRText(result, m_currentCellIdx);
+			// convert image to have a byte buffer
+			bi = ImageHelper.convertImageToGrayscale(bi);
+			// convert the byte buffer for native use
+			ByteBuffer convertImageData = ImageIOHelper.convertImageData(bi);
 
+			// pass the image to tesseract
+			final int width = bi.getWidth();
+			final int height = bi.getHeight();
+			final int bytesPerPixel = bi.getColorModel().getPixelSize() / 8;
+			int bytesPerLine = (int) Math.ceil(width * bytesPerPixel);
+			m_tessInstance.getAPI().TessBaseAPISetImage(m_tessInstance.getHandle(), convertImageData, width, height,
+					bytesPerPixel, bytesPerLine);
+
+			// process and get the result
+			Pointer utf8Text = m_tessInstance.getAPI().TessBaseAPIGetUTF8Text(m_tessInstance.getHandle());
+			if (utf8Text != null) {
+				result = utf8Text.getString(0);
+				m_tessInstance.getAPI().TessDeleteText(utf8Text);
+			}
 		} catch (final Exception e) {
 			throw e;
 		} finally {
