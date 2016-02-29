@@ -61,9 +61,6 @@ import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.imglib2.type.numeric.RealType;
-import net.sourceforge.tess4j.ITesseract;
-
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
@@ -74,6 +71,9 @@ import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
+
+import net.imglib2.type.numeric.RealType;
+import net.sourceforge.tess4j.ITesseract;
 
 /**
  * Tess4JNodeDialog
@@ -86,15 +86,15 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class Tess4JNodeDialog<T extends RealType<T>> extends
-		ValueToCellNodeDialog<ImgPlusValue<T>> implements ChangeListener {
+public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>>
+		implements ChangeListener {
 
 	private DialogComponentStringSelection m_languageListComponent;
 	private DialogComponentAlternatePathChooser m_pathChooser;
 
 	private final Tess4JNodeSettings m_settings = new Tess4JNodeSettings();
 	private final List<String> m_languages = new ArrayList<String>();
-	
+
 	private final List<DialogComponent> m_dialogComponents = new ArrayList<DialogComponent>();
 
 	public Tess4JNodeDialog() {
@@ -105,57 +105,57 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 	}
 
 	public void createOptionsTab() {
-		JPanel contentPane = new JPanel();
+		final JPanel contentPane = new JPanel();
 		contentPane.setLayout(new GridBagLayout());
-		
-		JPanel preprocessingPane = new JPanel();
+
+		final JPanel preprocessingPane = new JPanel();
 		preprocessingPane.setBorder(BorderFactory.createTitledBorder("Preprocessing"));
-		
-		JPanel recogPane = new JPanel(new GridBagLayout());
+
+		final JPanel recogPane = new JPanel(new GridBagLayout());
 		recogPane.setBorder(BorderFactory.createTitledBorder("Recognition Configuration"));
-		
-		DialogComponentBoolean deskewComp = new DialogComponentBoolean(
-				m_settings.deskewModel(), "Deskew input images");
-		DialogComponentStringIndexSelection pageSegComp = new DialogComponentStringIndexSelection(
-				m_settings.pageSegModeModel(), "Page Segmentation Mode",
-				ITesseract.PageSegMode.m_valueNames);
-		DialogComponentStringIndexSelection ocrModeComp = new DialogComponentStringIndexSelection(
-				m_settings.ocrEngineModeModel(), "OCR Engine Mode",
-				ITesseract.OcrEngineMode.m_valueNames);
+
+		final DialogComponentBoolean deskewComp = new DialogComponentBoolean(m_settings.deskewModel(),
+				"Deskew input images");
+		final DialogComponentStringIndexSelection pageSegComp = new DialogComponentStringIndexSelection(
+				m_settings.pageSegModeModel(), "Page Segmentation Mode", ITesseract.PageSegMode.m_valueNames);
+		final DialogComponentStringIndexSelection ocrModeComp = new DialogComponentStringIndexSelection(
+				m_settings.ocrEngineModeModel(), "OCR Engine Mode", ITesseract.OcrEngineMode.m_valueNames);
 
 		final int ANCHOR = GridBagConstraints.FIRST_LINE_START;
 		final int FILL = GridBagConstraints.HORIZONTAL;
-		
+
 		final Insets insets = new Insets(0, 4, 0, 4);
 		final GridBagConstraints gbc_deskew = new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, ANCHOR, FILL, insets, 0, 0);
-		final GridBagConstraints gbc_pathChooser = new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, ANCHOR, FILL, insets, 0, 0);
+		final GridBagConstraints gbc_pathChooser = new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, ANCHOR, FILL, insets, 0,
+				0);
 		final GridBagConstraints gbc_recog = new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, ANCHOR, FILL, insets, 0, 0);
-		
-		final GridBagConstraints gbc_language = new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0, 0);
-		final GridBagConstraints gbc_pageSet = new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0, 0);
-		final GridBagConstraints gbc_ocrEngine = new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0, ANCHOR, FILL, insets, 0, 0);
-		
-		updateLanguages();
-		m_languageListComponent = new DialogComponentStringSelection(
-				m_settings.languageModel(), "Language", m_languages);
 
-		m_pathChooser = new DialogComponentAlternatePathChooser(
-				"Tessdata Path", m_settings.pathModel());
+		final GridBagConstraints gbc_language = new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0,
+				0);
+		final GridBagConstraints gbc_pageSet = new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0, 0);
+		final GridBagConstraints gbc_ocrEngine = new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0, ANCHOR, FILL, insets, 0,
+				0);
+
+		updateLanguages();
+		m_languageListComponent = new DialogComponentStringSelection(m_settings.languageModel(), "Language",
+				m_languages);
+
+		m_pathChooser = new DialogComponentAlternatePathChooser("Tessdata Path", m_settings.pathModel());
 
 		m_settings.pathModel().addChangeListener(this);
 
 		preprocessingPane.add(deskewComp.getComponentPanel());
 		contentPane.add(preprocessingPane, gbc_deskew);
-		
+
 		contentPane.add(m_pathChooser.getComponentPanel(), gbc_pathChooser);
-		
+
 		recogPane.add(m_languageListComponent.getComponentPanel(), gbc_language);
 		recogPane.add(pageSegComp.getComponentPanel(), gbc_pageSet);
 		recogPane.add(ocrModeComp.getComponentPanel(), gbc_ocrEngine);
 		contentPane.add(recogPane, gbc_recog);
-		
+
 		addTab("Settings", contentPane);
-		
+
 		// add dialog components to list
 		m_dialogComponents.add(m_pathChooser);
 		m_dialogComponents.add(m_languageListComponent);
@@ -197,8 +197,7 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 					continue;
 				}
 
-				m_languages.add(langFilename.substring(0,
-						langFilename.length() - 12));
+				m_languages.add(langFilename.substring(0, langFilename.length() - 12));
 			}
 		}
 
@@ -213,25 +212,23 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 	}
 
 	@Override
-	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
 		if (!updateLanguages()) {
-			throw new InvalidSettingsException(
-					"No tesseract language (.tessdata) files found in selected path.");
+			throw new InvalidSettingsException("No tesseract language (.tessdata) files found in selected path.");
 		}
 
 		for (DialogComponent comp : m_dialogComponents) {
 			comp.saveSettingsTo(settings);
 		}
-		
+
 		super.saveAdditionalSettingsTo(settings);
 	}
-	
+
 	@Override
-	public void loadAdditionalSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	public void loadAdditionalSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
+			throws NotConfigurableException {
 		super.loadAdditionalSettingsFrom(settings, specs);
-		
+
 		for (DialogComponent comp : m_dialogComponents) {
 			comp.loadSettingsFrom(settings, specs);
 		}
