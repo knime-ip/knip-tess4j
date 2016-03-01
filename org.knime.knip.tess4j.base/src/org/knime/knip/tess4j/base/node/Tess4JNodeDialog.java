@@ -109,7 +109,10 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		buildDialog();
 	}
 
-	public void createOptionsTab() {
+	/**
+	 * Create a tab which contains basic tesseract settings.
+	 */
+	private void createOptionsTab() {
 		final JPanel contentPane = new JPanel();
 		contentPane.setLayout(new GridBagLayout());
 
@@ -169,7 +172,11 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		m_dialogComponents.add(deskewComp);
 	}
 
-	public void createAdvancedConfigTab() {
+	/**
+	 * Create a tab which contains a table to manually set tesseract config
+	 * key-value pairs.
+	 */
+	private void createAdvancedConfigTab() {
 		final JPanel contents = new JPanel(new BorderLayout());
 		final TessConfigTable tessConfigTable = new TessConfigTable(m_settings.tessAdvancedConfigModel());
 
