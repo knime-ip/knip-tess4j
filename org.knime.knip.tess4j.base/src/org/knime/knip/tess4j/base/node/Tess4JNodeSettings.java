@@ -203,8 +203,9 @@ public class Tess4JNodeSettings {
 		final ArrayList<Pair<String, String>> list = new ArrayList<>();
 
 		for (String line : strings) {
+			line = line.trim();
 			final int index = line.indexOf(' ');
-			list.add(new Pair<String, String>(line.substring(0, index), line.substring(index + 1)));
+			list.add(new Pair<String, String>(line.substring(0, index), line.substring(index + 1).trim()));
 		}
 
 		return list;
