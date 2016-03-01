@@ -49,17 +49,27 @@
 package org.knime.knip.tess4j.base.node;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -72,6 +82,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.util.Pair;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
 import org.knime.knip.tess4j.base.node.ui.TessConfigTable;
@@ -197,6 +208,14 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		final JButton btnClear = new JButton("Clear");
 		btnClear.addActionListener((evt) -> clearTessConfig());
 
+		/* import tesseract config button */
+		final JButton btnImport = new JButton("Import");
+		btnImport.addActionListener((evt) -> importTessConfig());
+
+		/* export tesseract config button */
+		final JButton btnExport = new JButton("Export");
+		btnExport.addActionListener((evt) -> exportTessConfig());
+
 		contents.add(m_tessConfigTable.getComponentPanel(), BorderLayout.CENTER);
 
 		final JPanel labelPanel = new JPanel(new GridBagLayout());
@@ -210,7 +229,15 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
 		buttons.add(btnDel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
 				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
-		buttons.add(new JPanel(), new GridBagConstraints(0, 2, 1, 1, 0.0, 1.0, GridBagConstraints.FIRST_LINE_START,
+		buttons.add(btnClear, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+
+		buttons.add(btnImport, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(20, 0, 0, 0), 0, 0));
+		buttons.add(btnExport, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+
+		buttons.add(new JPanel(), new GridBagConstraints(0, 5, 1, 1, 0.0, 1.0, GridBagConstraints.FIRST_LINE_START,
 				GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0)); /* filler */
 
 		contents.add(buttons, BorderLayout.EAST);
@@ -218,6 +245,103 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		addTab("Advanced Config", contents);
 
 		m_dialogComponents.add(m_tessConfigTable);
+	}
+
+	/**
+	 * Export tesseract configuration from advanced config to a file chosen by
+	 * the user via a {@link JFileChooser#showSaveDialog(Component)}.
+	 */
+	private void exportTessConfig() {
+		// Create a file choosers
+		final JFileChooser fc = new JFileChooser();
+		final Component panel = getPanel();
+
+		int ret = fc.showSaveDialog(panel);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			final File file = fc.getSelectedFile();
+
+			try {
+				if (!file.createNewFile()) {
+					/* file exists, overwrite file? */
+					if (JOptionPane.showConfirmDialog(panel, "Overwrite existing file?", "Confirm",
+							JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
+						return;
+					}
+				}
+			} catch (HeadlessException | IOException e) {
+				JOptionPane.showMessageDialog(panel, "Could not create file.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+
+			try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+				for (final Pair<String, String> config : m_tessConfigTable.model().contents()) {
+					writer.write(config.getFirst() + " " + config.getSecond() + "\n");
+				}
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(panel, "Could not write file (IO Error).", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+
+		JOptionPane.showMessageDialog(panel, "Successfully exported tesseract configuration.", "Done",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Import tesseract configuration to advanced config from a file chosen by
+	 * the user via a {@link JFileChooser#showOpenDialog(Component)}.
+	 */
+	private void importTessConfig() {
+		// Create a file chooser
+		final JFileChooser fc = new JFileChooser();
+		final Component panel = getPanel();
+
+		int ret = fc.showOpenDialog(panel);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			int userChoice = -1;
+			if (!m_tessConfigTable.model().contents().isEmpty()) {
+				/*
+				 * Ask user what to do with the existing configuration. Append
+				 * may add duplicates.
+				 */
+				final String[] options = { "Replace", "Append", "Cancel" };
+				userChoice = JOptionPane.showOptionDialog(panel,
+						"You have existing config values. What do you want to do?\n(Append may result in duplicate keys.)",
+						"Existing values?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						options, options[2]);
+			}
+
+			/* check if canceled */
+			if (userChoice == JOptionPane.CANCEL_OPTION) {
+				return;
+			}
+
+			final File file = fc.getSelectedFile();
+
+			try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+				ArrayList<String> list = new ArrayList<>();
+
+				String line;
+				while ((line = bufferedReader.readLine()) != null) {
+					list.add(line.trim());
+				}
+
+				if (userChoice == JOptionPane.YES_OPTION) {
+					// replace
+					m_tessConfigTable.model().contents().clear();
+				}
+
+				// code for both, replace or append
+				m_tessConfigTable.model().contents().addAll(Tess4JNodeSettings.toTessConfigPairs(list));
+				m_tessConfigTable.model().fireTableDataChanged();
+
+			} catch (FileNotFoundException e) {
+				JOptionPane.showMessageDialog(panel, "Could not find specified file.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(panel, "Could read specified file (IO Error).", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 
 	/**
