@@ -3,9 +3,9 @@ package org.knime.knip.tess4j.base.node;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import net.sourceforge.tess4j.ITesseract;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
@@ -13,6 +13,10 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelOptionalString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
+import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
+import org.knime.core.util.Pair;
+
+import net.sourceforge.tess4j.ITesseract;
 
 /**
  * Settings of the Tess4JNode.
@@ -26,6 +30,7 @@ public class Tess4JNodeSettings {
 	private final SettingsModelInteger m_pageSegMode = createTessPageSegModeModel();
 	private final SettingsModelInteger m_ocrEngineMode = createTessOcrEngineModeModel();
 	private final SettingsModelBoolean m_deskewModel = createTessDeskewModel();
+	private final SettingsModelStringArray m_advancedConfig = createTessAdvancedConfigModel();
 
 	/**
 	 * Creates a SetingsModel for the Tesseract Language
@@ -73,6 +78,16 @@ public class Tess4JNodeSettings {
 	}
 
 	/**
+	 * Creates a SettingsModel for the advanced tesseract config key-value pair
+	 * list
+	 * 
+	 * @return
+	 */
+	public static SettingsModelStringArray createTessAdvancedConfigModel() {
+		return new SettingsModelStringArray("TessConfig", new String[] {});
+	}
+
+	/**
 	 * Add settings to settingsModels.
 	 * 
 	 * @param settingsModels
@@ -83,6 +98,7 @@ public class Tess4JNodeSettings {
 		settingsModels.add(m_pageSegMode);
 		settingsModels.add(m_ocrEngineMode);
 		settingsModels.add(m_deskewModel);
+		settingsModels.add(m_advancedConfig);
 	}
 
 	/**
@@ -114,10 +130,18 @@ public class Tess4JNodeSettings {
 	}
 
 	/**
-	 * @return {@link SettingsModel} for the OCR Engine to use.
+	 * @return {@link SettingsModel} for whether to use deskew.
 	 */
 	public SettingsModelBoolean deskewModel() {
 		return m_deskewModel;
+	}
+
+	/**
+	 * @return {@link SettingsModel} for advanced tesseract config key-value
+	 *         pairs.
+	 */
+	public SettingsModelStringArray tessAdvancedConfigModel() {
+		return m_advancedConfig;
 	}
 
 	/**
@@ -158,6 +182,72 @@ public class Tess4JNodeSettings {
 	 */
 	public boolean useDeskew() {
 		return deskewModel().getBooleanValue();
+	}
+
+	/**
+	 * @return the tesseract configuration key-value pairs
+	 */
+	public List<Pair<String, String>> tessAdvancedConfig() {
+		return toTessConfigPairs(m_advancedConfig.getStringArrayValue());
+	}
+
+	/**
+	 * Turn an array of strings into a ArrayList of String pairs by splitting at
+	 * the first ' '.
+	 * 
+	 * @param strings
+	 *            array to split up
+	 * @return the array list containing key-value pairs
+	 */
+	public static ArrayList<Pair<String, String>> toTessConfigPairs(final String[] strings) {
+		final ArrayList<Pair<String, String>> list = new ArrayList<>();
+
+		for (String line : strings) {
+			line = line.trim();
+			final int index = line.indexOf(' ');
+			list.add(new Pair<String, String>(line.substring(0, index), line.substring(index + 1).trim()));
+		}
+
+		return list;
+	}
+
+	/**
+	 * Convenience method, see {@link #toTessConfigPairs(String[])}.
+	 * 
+	 * @param list
+	 *            to split up
+	 * @return the array list containing key-value pairs
+	 */
+	public static Collection<? extends Pair<String, String>> toTessConfigPairs(final List<String> list) {
+		return toTessConfigPairs(list.toArray(new String[list.size()]));
+	}
+
+	/**
+	 * Convert a list of string pairs to an arraylist of strings in the form of
+	 * <code>pair.getFirst() + " " + pair.getSecond()</code>.
+	 * 
+	 * @param pairs
+	 *            the list of string pairs
+	 * @return
+	 */
+	public static String[] toStringArray(final List<Pair<String, String>> pairs) {
+		final ArrayList<String> list = new ArrayList<>();
+
+		for (Pair<String, String> pair : pairs) {
+			list.add(pair.getFirst() + " " + pair.getSecond());
+		}
+
+		return list.toArray(new String[list.size()]);
+	}
+
+	/**
+	 * Set the key-value pairs for advanced configuration.
+	 * 
+	 * @param config
+	 *            the key-value pairs
+	 */
+	public void setTessAdvancedConfig(final List<Pair<String, String>> config) {
+		m_advancedConfig.setStringArrayValue(toStringArray(config));
 	}
 
 	/**

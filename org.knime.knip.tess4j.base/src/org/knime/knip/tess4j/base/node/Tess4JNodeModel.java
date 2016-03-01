@@ -56,6 +56,7 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.defaultnodesettings.SettingsModel;
 import org.knime.core.node.port.PortObject;
+import org.knime.core.util.Pair;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeModel;
 import org.knime.knip.core.awt.Real2GreyRenderer;
@@ -119,6 +120,11 @@ public class Tess4JNodeModel<T extends RealType<T>> extends ValueToCellNodeModel
 		}
 
 		getLogger().debug("Initialized tesseract.");
+
+		/* load custom config key-value pairs */
+		for (final Pair<String, String> config : m_settings.tessAdvancedConfig()) {
+			m_tessInstance.setTessVariable(config.getFirst(), config.getSecond());
+		}
 
 		m_tessInstance.setTessVariables();
 	}

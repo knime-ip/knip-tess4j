@@ -48,21 +48,31 @@
  */
 package org.knime.knip.tess4j.base.node;
 
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-
-import net.imglib2.type.numeric.RealType;
-import net.sourceforge.tess4j.ITesseract;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -72,8 +82,13 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
+import org.knime.core.util.Pair;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
+import org.knime.knip.tess4j.base.node.ui.TessConfigTable;
+
+import net.imglib2.type.numeric.RealType;
+import net.sourceforge.tess4j.ITesseract;
 
 /**
  * Tess4JNodeDialog
@@ -86,82 +101,262 @@ import org.knime.knip.base.node.ValueToCellNodeDialog;
  * @author <a href="mailto:michael.zinsmaier@googlemail.com">Michael
  *         Zinsmaier</a>
  */
-public class Tess4JNodeDialog<T extends RealType<T>> extends
-		ValueToCellNodeDialog<ImgPlusValue<T>> implements ChangeListener {
+public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDialog<ImgPlusValue<T>>
+		implements ChangeListener {
 
 	private DialogComponentStringSelection m_languageListComponent;
 	private DialogComponentAlternatePathChooser m_pathChooser;
 
 	private final Tess4JNodeSettings m_settings = new Tess4JNodeSettings();
 	private final List<String> m_languages = new ArrayList<String>();
-	
+
 	private final List<DialogComponent> m_dialogComponents = new ArrayList<DialogComponent>();
 
+	final TessConfigTable m_tessConfigTable = new TessConfigTable(m_settings.tessAdvancedConfigModel());
+
+	/**
+	 * Constructor
+	 */
 	public Tess4JNodeDialog() {
 		super(true);
 
 		createOptionsTab();
+		createAdvancedConfigTab();
 		buildDialog();
 	}
 
-	public void createOptionsTab() {
-		JPanel contentPane = new JPanel();
+	/**
+	 * Create a tab which contains basic tesseract settings.
+	 */
+	private void createOptionsTab() {
+		final JPanel contentPane = new JPanel();
 		contentPane.setLayout(new GridBagLayout());
-		
-		JPanel preprocessingPane = new JPanel();
+
+		final JPanel preprocessingPane = new JPanel();
 		preprocessingPane.setBorder(BorderFactory.createTitledBorder("Preprocessing"));
-		
-		JPanel recogPane = new JPanel(new GridBagLayout());
+
+		final JPanel recogPane = new JPanel(new GridBagLayout());
 		recogPane.setBorder(BorderFactory.createTitledBorder("Recognition Configuration"));
-		
-		DialogComponentBoolean deskewComp = new DialogComponentBoolean(
-				m_settings.deskewModel(), "Deskew input images");
-		DialogComponentStringIndexSelection pageSegComp = new DialogComponentStringIndexSelection(
-				m_settings.pageSegModeModel(), "Page Segmentation Mode",
-				ITesseract.PageSegMode.m_valueNames);
-		DialogComponentStringIndexSelection ocrModeComp = new DialogComponentStringIndexSelection(
-				m_settings.ocrEngineModeModel(), "OCR Engine Mode",
-				ITesseract.OcrEngineMode.m_valueNames);
+
+		final DialogComponentBoolean deskewComp = new DialogComponentBoolean(m_settings.deskewModel(),
+				"Deskew input images");
+		final DialogComponentStringIndexSelection pageSegComp = new DialogComponentStringIndexSelection(
+				m_settings.pageSegModeModel(), "Page Segmentation Mode", ITesseract.PageSegMode.m_valueNames);
+		final DialogComponentStringIndexSelection ocrModeComp = new DialogComponentStringIndexSelection(
+				m_settings.ocrEngineModeModel(), "OCR Engine Mode", ITesseract.OcrEngineMode.m_valueNames);
 
 		final int ANCHOR = GridBagConstraints.FIRST_LINE_START;
 		final int FILL = GridBagConstraints.HORIZONTAL;
-		
+
 		final Insets insets = new Insets(0, 4, 0, 4);
 		final GridBagConstraints gbc_deskew = new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, ANCHOR, FILL, insets, 0, 0);
-		final GridBagConstraints gbc_pathChooser = new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, ANCHOR, FILL, insets, 0, 0);
+		final GridBagConstraints gbc_pathChooser = new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, ANCHOR, FILL, insets, 0,
+				0);
 		final GridBagConstraints gbc_recog = new GridBagConstraints(0, 2, 1, 1, 1.0, 1.0, ANCHOR, FILL, insets, 0, 0);
-		
-		final GridBagConstraints gbc_language = new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0, 0);
-		final GridBagConstraints gbc_pageSet = new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0, 0);
-		final GridBagConstraints gbc_ocrEngine = new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0, ANCHOR, FILL, insets, 0, 0);
-		
-		updateLanguages();
-		m_languageListComponent = new DialogComponentStringSelection(
-				m_settings.languageModel(), "Language", m_languages);
 
-		m_pathChooser = new DialogComponentAlternatePathChooser(
-				"Tessdata Path", m_settings.pathModel());
+		final GridBagConstraints gbc_language = new GridBagConstraints(0, 1, 2, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0,
+				0);
+		final GridBagConstraints gbc_pageSet = new GridBagConstraints(0, 2, 1, 1, 1.0, 0.0, ANCHOR, FILL, insets, 0, 0);
+		final GridBagConstraints gbc_ocrEngine = new GridBagConstraints(1, 2, 1, 1, 1.0, 1.0, ANCHOR, FILL, insets, 0,
+				0);
+
+		updateLanguages();
+		m_languageListComponent = new DialogComponentStringSelection(m_settings.languageModel(), "Language",
+				m_languages);
+
+		m_pathChooser = new DialogComponentAlternatePathChooser("Tessdata Path", m_settings.pathModel());
 
 		m_settings.pathModel().addChangeListener(this);
 
 		preprocessingPane.add(deskewComp.getComponentPanel());
 		contentPane.add(preprocessingPane, gbc_deskew);
-		
+
 		contentPane.add(m_pathChooser.getComponentPanel(), gbc_pathChooser);
-		
+
 		recogPane.add(m_languageListComponent.getComponentPanel(), gbc_language);
 		recogPane.add(pageSegComp.getComponentPanel(), gbc_pageSet);
 		recogPane.add(ocrModeComp.getComponentPanel(), gbc_ocrEngine);
 		contentPane.add(recogPane, gbc_recog);
-		
+
 		addTab("Settings", contentPane);
-		
+
 		// add dialog components to list
 		m_dialogComponents.add(m_pathChooser);
 		m_dialogComponents.add(m_languageListComponent);
 		m_dialogComponents.add(pageSegComp);
 		m_dialogComponents.add(ocrModeComp);
 		m_dialogComponents.add(deskewComp);
+	}
+
+	/**
+	 * Create a tab which contains a table to manually set tesseract config
+	 * key-value pairs.
+	 */
+	private void createAdvancedConfigTab() {
+		final JPanel contents = new JPanel(new BorderLayout());
+
+		/* add button */
+		final JButton btnAdd = new JButton("Add");
+		btnAdd.addActionListener((evt) -> m_tessConfigTable.model().addEmptyConfigEntry());
+
+		/* remove button */
+		final JButton btnDel = new JButton("Remove");
+		btnDel.addActionListener(
+				(evt) -> m_tessConfigTable.model().removeConfigEntry(m_tessConfigTable.table().getSelectedRow()));
+
+		/* clear button */
+		final JButton btnClear = new JButton("Clear");
+		btnClear.addActionListener((evt) -> clearTessConfig());
+
+		/* import tesseract config button */
+		final JButton btnImport = new JButton("Import");
+		btnImport.addActionListener((evt) -> importTessConfig());
+
+		/* export tesseract config button */
+		final JButton btnExport = new JButton("Export");
+		btnExport.addActionListener((evt) -> exportTessConfig());
+
+		contents.add(m_tessConfigTable.getComponentPanel(), BorderLayout.CENTER);
+
+		final JPanel labelPanel = new JPanel(new GridBagLayout());
+		labelPanel.add(new JLabel("Tesseract configuration for advanced users."),
+				new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+						GridBagConstraints.HORIZONTAL, new Insets(3, 3, 6, 3), 0, 0));
+		contents.add(labelPanel, BorderLayout.NORTH);
+
+		final JPanel buttons = new JPanel(new GridBagLayout());
+		buttons.add(btnAdd, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+		buttons.add(btnDel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+		buttons.add(btnClear, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+
+		buttons.add(btnImport, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(20, 0, 0, 0), 0, 0));
+		buttons.add(btnExport, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+
+		buttons.add(new JPanel(), new GridBagConstraints(0, 5, 1, 1, 0.0, 1.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0)); /* filler */
+
+		contents.add(buttons, BorderLayout.EAST);
+
+		addTab("Advanced Config", contents);
+
+		m_dialogComponents.add(m_tessConfigTable);
+	}
+
+	/**
+	 * Export tesseract configuration from advanced config to a file chosen by
+	 * the user via a {@link JFileChooser#showSaveDialog(Component)}.
+	 */
+	private void exportTessConfig() {
+		// Create a file choosers
+		final JFileChooser fc = new JFileChooser();
+		final Component panel = getPanel();
+
+		int ret = fc.showSaveDialog(panel);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			final File file = fc.getSelectedFile();
+
+			try {
+				if (!file.createNewFile()) {
+					/* file exists, overwrite file? */
+					if (JOptionPane.showConfirmDialog(panel, "Overwrite existing file?", "Confirm",
+							JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
+						return;
+					}
+				}
+			} catch (HeadlessException | IOException e) {
+				JOptionPane.showMessageDialog(panel, "Could not create file.", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+
+			try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+				for (final Pair<String, String> config : m_tessConfigTable.model().contents()) {
+					writer.write(config.getFirst() + " " + config.getSecond() + "\n");
+				}
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(panel, "Could not write file (IO Error).", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+
+		JOptionPane.showMessageDialog(panel, "Successfully exported tesseract configuration.", "Done",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	/**
+	 * Import tesseract configuration to advanced config from a file chosen by
+	 * the user via a {@link JFileChooser#showOpenDialog(Component)}.
+	 */
+	private void importTessConfig() {
+		// Create a file chooser
+		final JFileChooser fc = new JFileChooser();
+		final Component panel = getPanel();
+
+		int ret = fc.showOpenDialog(panel);
+		if (ret == JFileChooser.APPROVE_OPTION) {
+			int userChoice = -1;
+			if (!m_tessConfigTable.model().contents().isEmpty()) {
+				/*
+				 * Ask user what to do with the existing configuration. Append
+				 * may add duplicates.
+				 */
+				final String[] options = { "Replace", "Append", "Cancel" };
+				userChoice = JOptionPane.showOptionDialog(panel,
+						"You have existing config values. What do you want to do?\n(Append may result in duplicate keys.)",
+						"Existing values?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+						options, options[2]);
+			}
+
+			/* check if canceled */
+			if (userChoice == JOptionPane.CANCEL_OPTION) {
+				return;
+			}
+
+			final File file = fc.getSelectedFile();
+
+			try (final BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
+				ArrayList<String> list = new ArrayList<>();
+
+				String line;
+				while ((line = bufferedReader.readLine()) != null) {
+					list.add(line.trim());
+				}
+
+				if (userChoice == JOptionPane.YES_OPTION) {
+					// replace
+					m_tessConfigTable.model().contents().clear();
+				}
+
+				// code for both, replace or append
+				m_tessConfigTable.model().contents().addAll(Tess4JNodeSettings.toTessConfigPairs(list));
+				m_tessConfigTable.model().fireTableDataChanged();
+
+			} catch (FileNotFoundException e) {
+				JOptionPane.showMessageDialog(panel, "Could not find specified file.", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(panel, "Could read specified file (IO Error).", "Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+
+	/**
+	 * Ask user for confirmation and then possibly clear all config values from
+	 * the advanced tesseract configuration table.
+	 */
+	private void clearTessConfig() {
+		/* ask for confirmation */
+		if (JOptionPane.showConfirmDialog(getPanel(), "Delete all config values?\n(Cannot be undone.)", "Confirm",
+				JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
+			return;
+		}
+
+		m_tessConfigTable.model().contents().clear();
+		m_tessConfigTable.model().fireTableDataChanged();
 	}
 
 	@Override
@@ -197,8 +392,7 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 					continue;
 				}
 
-				m_languages.add(langFilename.substring(0,
-						langFilename.length() - 12));
+				m_languages.add(langFilename.substring(0, langFilename.length() - 12));
 			}
 		}
 
@@ -213,25 +407,23 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends
 	}
 
 	@Override
-	public void saveAdditionalSettingsTo(final NodeSettingsWO settings)
-			throws InvalidSettingsException {
+	public void saveAdditionalSettingsTo(final NodeSettingsWO settings) throws InvalidSettingsException {
 		if (!updateLanguages()) {
-			throw new InvalidSettingsException(
-					"No tesseract language (.tessdata) files found in selected path.");
+			throw new InvalidSettingsException("No tesseract language (.tessdata) files found in selected path.");
 		}
 
 		for (DialogComponent comp : m_dialogComponents) {
 			comp.saveSettingsTo(settings);
 		}
-		
+
 		super.saveAdditionalSettingsTo(settings);
 	}
-	
+
 	@Override
-	public void loadAdditionalSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
+	public void loadAdditionalSettingsFrom(NodeSettingsRO settings, DataTableSpec[] specs)
+			throws NotConfigurableException {
 		super.loadAdditionalSettingsFrom(settings, specs);
-		
+
 		for (DialogComponent comp : m_dialogComponents) {
 			comp.loadSettingsFrom(settings, specs);
 		}
