@@ -210,19 +210,31 @@ public class Tess4JNodeSettings {
 	}
 
 	/**
+	 * Convert a list of string pairs to an arraylist of strings in the form of
+	 * <code>pair.getFirst() + " " + pair.getSecond()</code>.
+	 * 
+	 * @param pairs
+	 *            the list of string pairs
+	 * @return
+	 */
+	public static String[] toStringArray(final List<Pair<String, String>> pairs) {
+		final ArrayList<String> list = new ArrayList<>();
+
+		for (Pair<String, String> pair : pairs) {
+			list.add(pair.getFirst() + " " + pair.getSecond());
+		}
+
+		return list.toArray(new String[list.size()]);
+	}
+
+	/**
 	 * Set the key-value pairs for advanced configuration.
 	 * 
 	 * @param config
 	 *            the key-value pairs
 	 */
 	public void setTessAdvancedConfig(final List<Pair<String, String>> config) {
-		final ArrayList<String> list = new ArrayList<>();
-
-		for (Pair<String, String> pair : config) {
-			list.add(pair.getFirst() + " " + pair.getSecond());
-		}
-
-		m_advancedConfig.setStringArrayValue(list.toArray(new String[list.size()]));
+		m_advancedConfig.setStringArrayValue(toStringArray(config));
 	}
 
 	/**
