@@ -101,6 +101,8 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 
 	private final List<DialogComponent> m_dialogComponents = new ArrayList<DialogComponent>();
 
+	final TessConfigTable m_tessConfigTable = new TessConfigTable(m_settings.tessAdvancedConfigModel());
+
 	public Tess4JNodeDialog() {
 		super(true);
 
@@ -178,16 +180,16 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 	 */
 	private void createAdvancedConfigTab() {
 		final JPanel contents = new JPanel(new BorderLayout());
-		final TessConfigTable tessConfigTable = new TessConfigTable(m_settings.tessAdvancedConfigModel());
 
+		/* add button */
 		final JButton btnAdd = new JButton("Add");
-		btnAdd.addActionListener((evt) -> tessConfigTable.model().addEmptyConfigEntry());
+		btnAdd.addActionListener((evt) -> m_tessConfigTable.model().addEmptyConfigEntry());
 
 		final JButton btnDel = new JButton("Remove");
 		btnDel.addActionListener(
-				(evt) -> tessConfigTable.model().removeConfigEntry(tessConfigTable.table().getSelectedRow()));
+				(evt) -> m_tessConfigTable.model().removeConfigEntry(m_tessConfigTable.table().getSelectedRow()));
 
-		contents.add(tessConfigTable.getComponentPanel(), BorderLayout.CENTER);
+		contents.add(m_tessConfigTable.getComponentPanel(), BorderLayout.CENTER);
 
 		final JPanel labelPanel = new JPanel(new GridBagLayout());
 		labelPanel.add(new JLabel("Tesseract configuration for advanced users."),
@@ -207,7 +209,7 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 
 		addTab("Advanced Config", contents);
 
-		m_dialogComponents.add(tessConfigTable);
+		m_dialogComponents.add(m_tessConfigTable);
 	}
 
 	@Override
