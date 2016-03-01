@@ -193,6 +193,10 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		btnDel.addActionListener(
 				(evt) -> m_tessConfigTable.model().removeConfigEntry(m_tessConfigTable.table().getSelectedRow()));
 
+		/* clear button */
+		final JButton btnClear = new JButton("Clear");
+		btnClear.addActionListener((evt) -> clearTessConfig());
+
 		contents.add(m_tessConfigTable.getComponentPanel(), BorderLayout.CENTER);
 
 		final JPanel labelPanel = new JPanel(new GridBagLayout());
@@ -214,6 +218,21 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		addTab("Advanced Config", contents);
 
 		m_dialogComponents.add(m_tessConfigTable);
+	}
+
+	/**
+	 * Ask user for confirmation and then possibly clear all config values from
+	 * the advanced tesseract configuration table.
+	 */
+	private void clearTessConfig() {
+		/* ask for confirmation */
+		if (JOptionPane.showConfirmDialog(getPanel(), "Delete all config values?\n(Cannot be undone.)", "Confirm",
+				JOptionPane.OK_CANCEL_OPTION) == JOptionPane.CANCEL_OPTION) {
+			return;
+		}
+
+		m_tessConfigTable.model().contents().clear();
+		m_tessConfigTable.model().fireTableDataChanged();
 	}
 
 	@Override
