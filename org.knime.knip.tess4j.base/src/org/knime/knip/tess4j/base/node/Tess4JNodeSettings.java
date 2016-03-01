@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -207,6 +208,17 @@ public class Tess4JNodeSettings {
 		}
 
 		return list;
+	}
+
+	/**
+	 * Convenience method, see {@link #toTessConfigPairs(String[])}.
+	 * 
+	 * @param list
+	 *            to split up
+	 * @return the array list containing key-value pairs
+	 */
+	public static Collection<? extends Pair<String, String>> toTessConfigPairs(final List<String> list) {
+		return toTessConfigPairs(list.toArray(new String[list.size()]));
 	}
 
 	/**
