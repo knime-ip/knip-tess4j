@@ -48,6 +48,7 @@
  */
 package org.knime.knip.tess4j.base.node;
 
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -57,6 +58,8 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -71,6 +74,7 @@ import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringSelection;
 import org.knime.knip.base.data.img.ImgPlusValue;
 import org.knime.knip.base.node.ValueToCellNodeDialog;
+import org.knime.knip.tess4j.base.node.ui.TessConfigTable;
 
 import net.imglib2.type.numeric.RealType;
 import net.sourceforge.tess4j.ITesseract;
@@ -101,6 +105,7 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		super(true);
 
 		createOptionsTab();
+		createAdvancedConfigTab();
 		buildDialog();
 	}
 
@@ -162,6 +167,40 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		m_dialogComponents.add(pageSegComp);
 		m_dialogComponents.add(ocrModeComp);
 		m_dialogComponents.add(deskewComp);
+	}
+
+	public void createAdvancedConfigTab() {
+		final JPanel contents = new JPanel(new BorderLayout());
+		final TessConfigTable tessConfigTable = new TessConfigTable(m_settings.tessAdvancedConfigModel());
+
+		final JButton btnAdd = new JButton("Add");
+		btnAdd.addActionListener((evt) -> tessConfigTable.model().addEmptyConfigEntry());
+
+		final JButton btnDel = new JButton("Remove");
+		btnDel.addActionListener(
+				(evt) -> tessConfigTable.model().removeConfigEntry(tessConfigTable.table().getSelectedRow()));
+
+		contents.add(tessConfigTable.getComponentPanel(), BorderLayout.CENTER);
+
+		final JPanel labelPanel = new JPanel(new GridBagLayout());
+		labelPanel.add(new JLabel("Tesseract configuration for advanced users."),
+				new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+						GridBagConstraints.HORIZONTAL, new Insets(3, 3, 6, 3), 0, 0));
+		contents.add(labelPanel, BorderLayout.NORTH);
+
+		final JPanel buttons = new JPanel(new GridBagLayout());
+		buttons.add(btnAdd, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+		buttons.add(btnDel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.HORIZONTAL, new Insets(0, 0, 0, 0), 0, 0));
+		buttons.add(new JPanel(), new GridBagConstraints(0, 2, 1, 1, 0.0, 1.0, GridBagConstraints.FIRST_LINE_START,
+				GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0)); /* filler */
+
+		contents.add(buttons, BorderLayout.EAST);
+
+		addTab("Advanced Config", contents);
+
+		m_dialogComponents.add(tessConfigTable);
 	}
 
 	@Override
