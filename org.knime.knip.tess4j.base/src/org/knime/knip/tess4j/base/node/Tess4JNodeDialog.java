@@ -103,6 +103,9 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 
 	final TessConfigTable m_tessConfigTable = new TessConfigTable(m_settings.tessAdvancedConfigModel());
 
+	/**
+	 * Constructor
+	 */
 	public Tess4JNodeDialog() {
 		super(true);
 
@@ -185,6 +188,7 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 		final JButton btnAdd = new JButton("Add");
 		btnAdd.addActionListener((evt) -> m_tessConfigTable.model().addEmptyConfigEntry());
 
+		/* remove button */
 		final JButton btnDel = new JButton("Remove");
 		btnDel.addActionListener(
 				(evt) -> m_tessConfigTable.model().removeConfigEntry(m_tessConfigTable.table().getSelectedRow()));
