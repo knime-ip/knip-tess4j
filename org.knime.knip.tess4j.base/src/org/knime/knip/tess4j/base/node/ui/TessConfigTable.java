@@ -52,6 +52,8 @@ public class TessConfigTable extends DialogComponent {
 
 		final TableColumn valColumn = m_table.getColumnModel().getColumn(1);
 		valColumn.setCellEditor(editor);
+
+		m_table.setRowHeight(22);
 	}
 
 	@Override
