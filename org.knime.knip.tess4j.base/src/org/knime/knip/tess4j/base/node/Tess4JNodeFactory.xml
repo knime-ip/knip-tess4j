@@ -126,8 +126,8 @@ http://knime.org/node/v2.10.xsd">
 		</tab>
 		<tab name="Advanced Config">
 			<option name="Tesseract Config" optional="true">
-				<p> This allows defining key/value pairs as user-defined tesseract configuration variables. There are
-					<a href="http://www.sk-spell.sk.cx/tesseract-ocr-parameters-in-302-version">many of them</a>.</p>
+				<p> This allows defining key/value pairs as user-defined tesseract configuration variables.
+					See (http://www.sk-spell.sk.cx/tesseract-ocr-parameters-in-302-version) for a list.</p>
 
 				<p> Advanced users can use this tab to make use of tesseracts flexibility, but <b>may result in unexpected
 					errors</b>, since the variables are not checked for correctness.</p>
