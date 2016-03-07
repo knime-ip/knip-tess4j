@@ -322,7 +322,15 @@ public class Tess4JNodeDialog<T extends RealType<T>> extends ValueToCellNodeDial
 
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
-					list.add(line.trim());
+					String trimmed = line.trim();
+					if (trimmed.isEmpty()) {
+						continue; // skip empty lines
+					}
+					if (!line.contains(" ")) {
+						// we need something to split at later.
+						trimmed += " ";
+					}
+					list.add(trimmed);
 				}
 
 				if (userChoice == JOptionPane.YES_OPTION) {

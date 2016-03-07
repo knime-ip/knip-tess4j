@@ -1,6 +1,7 @@
 package org.knime.knip.tess4j.base.node.ui;
 
 import java.awt.BorderLayout;
+import java.util.Iterator;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JPanel;
@@ -14,6 +15,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DialogComponent;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.port.PortObjectSpec;
+import org.knime.core.util.Pair;
 import org.knime.knip.tess4j.base.node.Tess4JNodeSettings;
 
 /**
@@ -50,6 +52,8 @@ public class TessConfigTable extends DialogComponent {
 
 		final TableColumn valColumn = m_table.getColumnModel().getColumn(1);
 		valColumn.setCellEditor(editor);
+
+		m_table.setRowHeight(22);
 	}
 
 	@Override
@@ -60,6 +64,13 @@ public class TessConfigTable extends DialogComponent {
 
 	@Override
 	protected void validateSettingsBeforeSave() throws InvalidSettingsException {
+		for (Iterator<Pair<String, String>> iterator = m_model.contents().iterator(); iterator.hasNext();) {
+			Pair<String, String> pair = iterator.next();
+
+			if (pair.getFirst().isEmpty() || pair.getSecond().isEmpty()) {
+				throw new InvalidSettingsException("Table cannot contain empty keys/values.");
+			}
+		}
 		m_settingsModel.setStringArrayValue(Tess4JNodeSettings.toStringArray(m_model.contents()));
 	}
 
