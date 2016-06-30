@@ -203,7 +203,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends ValueToCellNodeModel
 		} catch (final Exception e) {
 			throw e;
 		} finally {
-			context.setMessage(null);
+			context.setMessage("");
 		}
 
 		return new StringCell(result);
