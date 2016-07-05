@@ -162,7 +162,7 @@ public class Tess4JNodeModel<T extends RealType<T>> extends ValueToCellNodeModel
 			final Img<T> img = cellValue.getImgPlus();
 
 			// For converting our image to grey values
-			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>();
+			final Real2GreyRenderer<T> greyRenderer = new Real2GreyRenderer<T>(img.firstElement().getMinValue());
 
 			// Create a BufferedImage from the grey input image
 			BufferedImage bi = (BufferedImage) greyRenderer.render(img, 0, 1, new long[img.numDimensions()]).image();
