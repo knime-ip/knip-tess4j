@@ -64,7 +64,7 @@ http://knime.org/node/v2.10.xsd">
 					</li>
 					<li> (4) 
 						<b> Single Column </b>
-						 Assume a single column of test of variable sizes. 
+						 Assume a single column of text of variable sizes. 
 					</li>
 					<li> (5) 
 						<b> Single Vert Block </b>
@@ -76,19 +76,19 @@ http://knime.org/node/v2.10.xsd">
 					</li>
 					<li> (7) 
 						<b> Single Line </b>
-						 treat the image as a single text line. 
+						 Treat the image as a single text line. 
 					</li>
 					<li> (8) 
 						<b> Single Word </b>
-						 treat the image as a single word. 
+						 Treat the image as a single word. 
 					</li>
 					<li> (9) 
 						<b> Circle Word </b>
-						 treat the image as a single word in a circle. 
+						 Treat the image as a single word in a circle. 
 					</li>
 					<li> (10) 
 						<b> Single Char </b>
-						 treat the image as a single character. 
+						 Treat the image as a single character. 
 					</li>
 					<li> (11) 
 						<b> Sparse Text </b>
