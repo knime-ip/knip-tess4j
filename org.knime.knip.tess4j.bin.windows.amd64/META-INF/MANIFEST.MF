@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Tesseract Libraries and Dependencies for Windows x86_64
 Bundle-SymbolicName: org.knime.knip.tess4j.bin.windows.amd64
-Bundle-Version: 1.3.2.qualifier
+Bundle-Version: 1.3.3.qualifier
 Bundle-Vendor: University of Konstanz
-Fragment-Host: org.knime.knip.tess4j.base;bundle-version="1.3.0.qualifier"
+Fragment-Host: org.knime.knip.tess4j.base;bundle-version="1.3.3.qualifier"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Eclipse-PlatformFilter: (&(osgi.os=win32)(osgi.arch=x86_64))
 Bundle-NativeCode: 
