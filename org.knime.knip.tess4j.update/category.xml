@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature id="org.knime.knip.tess4j.feature" version="0.0.0">
+       <category name="knip-tess4j" />
+   </feature>
+
+   <category-def name="knip-tess4j" label="Build artifacts from knip-tess4j">
+       <description>Build artifacts from knip-tess4j </description>
+   </category-def>
+</site>

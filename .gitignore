@@ -1,2 +1,5 @@
 *.class
 */bin*
+target/
+.polyglot.*
+org.knime.knip.tess4j.base/knip_ocr.jar
