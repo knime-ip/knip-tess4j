@@ -11,4 +11,4 @@ Bundle-NativeCode:
  lib/linux/amd64/liblept.so;
  osname=Linux;
  processor=x86_64
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-21
