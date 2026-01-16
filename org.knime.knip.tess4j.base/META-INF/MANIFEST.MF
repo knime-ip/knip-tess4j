@@ -14,7 +14,7 @@ Require-Bundle: org.knime.base;bundle-version="[3.0.0,6.0.0)",
  imglib2;bundle-version="5.3.0",
  imagej-common;bundle-version="0.26.1",
  scijava-common;bundle-version="2.74.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ClassPath: knip_ocr.jar,
  lib/jna.jar,
  lib/tess4j-lw-3.0.0-SNAPSHOT.jar,
